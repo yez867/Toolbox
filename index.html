@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<!-- height width -->
+        <meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="Cache-Control" content="no-siteapp">
+		<meta http-equiv="Cache-Control" content="no-transform">
+        <title>工具箱(长期)</title>
+    </head>
+    <!-- 内部样式定义 -->
+    <style>
+        body {
+            margin: 0; /* 设置字体 */
+            font-family: '楷体', sans-serif;
+        }
+
+        .navbar {
+            display: block;
+            background-color: #f2fdff;
+            overflow: hidden;
+            padding: 5px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .responsive-iframe{
+            position: relative; /* 视窗样式 */
+            width: 100%; 
+            border: none; 
+            height: 825px;
+            border-radius: 15px;
+      }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: #363636;
+            text-align: center; /* 导航栏链接样式 */
+            padding: 14px 20px;
+            text-decoration: none;
+            font-size: 17px;
+            transition: background-color 0.2s;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd; /* 鼠标悬停时的导航栏链接样式 */
+            color: black;
+        }
+
+        .content {
+            display: none;
+            padding: 4%;
+            height: 950px; /* 内容区域样式 */
+            margin-top: 0px;
+            animation-name: fadeIn;
+            animation-duration: 0.3s;
+            background-color: #f2fdff;
+        }
+
+        .content.active {
+            display: block; /* 激活内容区域的样式 */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }  
+
+        @media screen and (max-width: 600px) {
+            .navbar a {
+                float: none;
+                display: block;
+                text-align: left; /* 响应式导航栏样式 */
+            }
+        }
+        
+        #head{
+            position: fixed;
+            top: 0px;
+            width: 100%;
+            opacity: 0.9;
+            float: left;
+        }
+        
+        a{
+            text-decoration: none;
+            color: #5BA4A4;
+        }
+        
+        h2{
+            text-align: center;
+            margin: 15px 0;
+            font-size: 24px;
+        }
+        
+        table{
+            height: 100%;
+        }
+        
+        li{
+            margin-bottom: 12px;
+            position: relative;
+        }
+        
+        .hover-text {
+            font-size: 20px;
+            transition: font-size 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 0;
+        }
+        
+        .hover-text:hover {
+            font-size: 22px;
+        }
+        
+        audio {
+            display: none;
+        }
+        
+        .music-btn {
+            border: none;
+            background: linear-gradient(145deg, #e3f4f6, #d6ecf0);
+            color: #5BA4A4;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.1),
+                        -3px -3px 6px rgba(255,255,255,0.8);
+            position: relative;
+            margin-left: auto;
+        }
+
+        .music-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.15),
+                        -4px -4px 8px rgba(255,255,255,0.9);
+            color: #3a8a8a;
+        }
+
+        .music-btn:active {
+            transform: translateY(1px);
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.1),
+                        -2px -2px 4px rgba(255,255,255,0.7);
+        }
+
+        /* 添加音乐图标动画 */
+        @keyframes musicWave {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .music-btn.playing .music-icon {
+            animation: musicWave 1s infinite;
+            display: inline-block;
+        }
+
+        .fav-btn {
+            display: inline-flex;
+            align-items: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            float: none;
+            padding: 0;
+            margin: 0;
+            text-shadow: 0 0 1px rgba(0,0,0,0.1);
+            margin-left: 5px;
+            opacity: 0.9;
+        }
+
+        .fav-btn:not(.active) {
+            color: #888888;
+            text-shadow: 0 0 1px rgba(0,0,0,0.2);
+            font-size: 20px;
+        }
+
+        .fav-btn.active {
+            color: #FFD700;
+            text-shadow: 0 0 2px rgba(255,215,0,0.4),
+                         0 0 8px rgba(255,215,0,0.2);
+            transform: scale(1);
+        }
+
+        /* 添加取消收藏的动画类 */
+        .fav-btn.removing {
+            animation: star-remove 0.5s ease-out forwards !important;
+            pointer-events: none;
+        }
+
+        /* 取消收藏的旋转动画 */
+        @keyframes star-remove {
+            0% {
+                transform: scale(1) rotate(0);
+                opacity: 1;
+                color: #FFD700;
+            }
+            50% {
+                transform: scale(1.2) rotate(90deg);
+                opacity: 0.8;
+                color: #FFD700;
+            }
+            100% {
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+                color: #d4d4d4;
+            }
+        }
+
+        .fav-btn:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .fav-btn:not(.active):hover {
+            color: #FFD700;
+            opacity: 0.8;
+        }
+        
+        .fav-container {
+            background-color: #f5f5f5;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px;
+        }
+
+        /* 修改粒子动画相关样式 */
+        .particle {
+            pointer-events: none;
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background-color: #FFD700;
+            border-radius: 50%;
+            animation: particle-animation 0.6s ease-out forwards;
+        }
+
+        @keyframes particle-animation {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* 修改收藏按钮激活样式 */
+        .fav-btn.active {
+            color: #FFD700;
+            text-shadow: 0 0 2px rgba(255,215,0,0.4),
+                         0 0 8px rgba(255,215,0,0.2);
+            transform: scale(1);
+        }
+
+        /* 修改列表样式 */
+        ul, ol {
+            padding-left: 25px;
+            margin: 10px 0;
+        }
+
+        /* 收藏页面的卡片样式调整 */
+        .fav-item {
+            padding: 12px 20px !important;
+            margin: 5px !important;
+            min-width: 180px !important;
+            transition: opacity 0.5s ease-out;  /* 添加透明度过渡效果 */
+        }
+
+        /* 调整链接和图标的间距 */
+        .hover-text a {
+            margin-right: 4px;
+        }
+		.bias{
+			font-size: 16px;
+			transition: font-size 0.3s ease;
+		}
+		.bias:hover{
+			font-size: 20px;
+		}
+        .responsive-iframe {
+            position: relative;
+            width: 100%;
+            border: none;
+            height: 825px;
+            border-radius: 15px;
+            pointer-events: auto;  /* 启用鼠标事件 */
+        }
+
+        /* 添加一个覆盖层来处理鼠标事件 */
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            height: 675px;
+        }
+
+        .iframe-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; 
+            z-index: 1;
+            cursor: default;
+        }
+
+        /* 收藏列表中的按钮样式 */
+        .fav-item {
+            background: linear-gradient(145deg, #e3f4f6, #d6ecf0);
+            padding: 8px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.1),
+                        -3px -3px 6px rgba(255,255,255,0.8);
+            transition: all 0.3s ease;
+        }
+
+        .fav-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.15),
+                        -4px -4px 8px rgba(255,255,255,0.9);
+        }
+
+        .fav-item a {
+            color: #5BA4A4;
+            text-decoration: none;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .fav-item .fav-btn {
+            opacity: 0.9;
+            font-size: 18px;
+        }
+
+        /* 添加响应式布局样式 */
+        @media screen and (max-width: 768px) {
+            /* 导航栏适配 */
+            .navbar {
+                padding: 5px 0;
+            }
+            
+            .navbar a {
+                float: none;
+                display: block;
+                text-align: center;
+                padding: 10px;
+                font-size: 16px;
+            }
+            
+            /* 内容区域适配 */
+            .content {
+                padding: 15px;
+                height: auto;
+                min-height: calc(100vh - 60px);
+            }
+            
+            /* 表格布局适配 */
+            table {
+                display: block;
+            }
+            
+            td {
+                display: block;
+                width: 100%;
+                padding: 10px 0 !important;
+            }
+            
+            /* 收藏项适配 */
+            .fav-item {
+                width: 100%;
+                margin: 5px 0 !important;
+            }
+            
+            /* 时钟适配 */
+            #clock-wrapper {
+                position: relative;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 80px;
+                margin-bottom: 10px;
+                padding: 5px;
+                display: flex;
+                justify-content: center;
+            }
+            
+            /* 列表项适配 */
+            .hover-text {
+                font-size: 16px;
+            }
+            
+            .hover-text:hover {
+                font-size: 18px;
+            }
+            
+            /* 音乐按钮适配 */
+            .music-btn {
+                margin: 10px auto;
+                display: block;
+            }
+        }
+
+        /* 收藏页面样式 */
+        #sc {
+            padding: 20px;
+        }
+        
+        #sc h2 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        #sc h3 {
+            color: #666;
+            margin: 20px 0 15px;
+            padding-left: 10px;
+            border-left: 4px solid #5BA4A4;
+        }
+        
+        .fav-item {
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+            border-radius: 10px;
+            padding: 12px 20px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.05),
+                        -3px -3px 6px rgba(255,255,255,0.8);
+            transition: all 0.3s ease;
+        }
+        
+        .fav-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.1),
+                        -4px -4px 8px rgba(255,255,255,0.9);
+        }
+        
+        .fav-item a {
+            color: #5BA4A4;
+            text-decoration: none;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .fav-item .fav-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            padding: 5px;
+            margin-left: 10px;
+        }
+        
+        #toolFavs, #gameFavs, #utilFavs, #linkFavs {
+            margin-bottom: 30px;
+        }
+        
+        @media screen and (max-width: 768px) {
+            #sc {
+                padding: 35px;
+            }
+            
+            .fav-item {
+                padding: 10px 15px;
+            }
+            
+            .fav-item a {
+                font-size: 14px;
+            }
+        }
+
+        .nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-item:hover {
+            transform: translateX(-5px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-text {
+            font-size: 16px;
+        }
+
+        /* 移动端适配 */
+        @media screen and (max-width: 768px) {
+            .nav {
+                right: 15px;
+                top: auto;
+                bottom: 20px;
+                transform: none;
+                gap: 10px;
+            }
+
+            .nav-item {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .nav-text {
+                font-size: 14px;
+            }
+        }
+
+        /* 在移动端隐藏顶部导航栏，显示右侧导航栏 */
+        @media screen and (max-width: 768px) {
+            .navbar {
+                display: none;
+            }
+            
+            .nav {
+                display: flex;
+            }
+        }
+
+        /* 在电脑端显示顶部导航栏，隐藏右侧导航栏 */
+        @media screen and (min-width: 769px) {
+            .nav {
+                display: none;
+            }
+            
+            .navbar {
+                display: block;
+            }
+        }
+    </style>
+    <body>
+        <!-- 添加加载动画iframe -->
+        <iframe id="loadingFrame" src="html/分主页/jiazai.html" style="display:none; border:none;"></iframe>
+        <!-- 移除 autoplay 属性 -->
+        <audio id="yy" controls="controls" loop="loop" preload="auto" src="music/snowfall.mp3"></audio>
+        <!-- 导航栏 -->
+<div class="navbar" id="head">
+	<a href="#myself">🥳我的</a>
+    <a href="#home" class="active">⛅首页</a>
+    <a href="#sc">💖收藏</a>
+	<a href="#about">📧关于我们</a>
+    <!-- <button class="music-btn" onclick="togglePlayPause();" style="margin: 8px 15px;">
+        <span class="music-icon">🎵</span>音乐
+    </button> -->
+</div>
+
+<div id="myself" class="content">
+	<iframe src="html/分主页/登录页面.html" class="responsive-iframe"></iframe>
+</div>
+
+
+<div id="home" class="content active">
+	<div class="table-container" style="margin: 0px auto;">
+    <table cellspacing="0"class="table">
+	<tr style="height: 50%; width: 250px;">
+		<th colspan="10">
+				<iframe src="html/分主页/imgxs.html" style="border: none;" width="100%" height="250"></iframe>
+				<hr style="size: 1;">
+		</th>
+		
+	</tr>
+
+	<tr>
+			<td style="vertical-align: top; padding-right: 40px;">
+				<h3 style="color: #666; margin-bottom: 15px; padding-left: 10px; border-left: 4px solid #5BA4A4;">🛠️ 工具</h3>
+				<ul type="square">
+					<li class="hover-text">
+						<a href="html/小组件/工具栏/搜索.html">📌搜索列单</a>
+						<button class="fav-btn" onclick="toggleFav(this, '搜索列单', 'html/小组件/工具栏/搜索.html', '📌', 'tool')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="html/小组件/工具栏/年龄计算.html">🧮年龄计算</a>
+						<button class="fav-btn" onclick="toggleFav(this, '年龄计算', 'html/小组件/工具栏/年龄计算.html', '🧮', 'tool')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="html/小组件/工具栏/抽签.html">📇抽签</a>
+						<button class="fav-btn" onclick="toggleFav(this, '抽签', 'html/小组件/工具栏/抽签.html', '📇', 'tool')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="html/小组件/工具栏/文案.html">📓文案</a>
+						<button class="fav-btn" onclick="toggleFav(this, '文案', 'html/小组件/工具栏/文案.html', '📓', 'tool')">☆</button>
+					</li>
+				</ul>
+			</td>
+			
+			<td style="vertical-align: top; padding-right: 40px;">
+				<h3 style="color: #666; margin-bottom: 15px; padding-left: 10px; border-left: 4px solid #5BA4A4;">🎮 游戏</h3>
+				<ul type="circle">
+					<li class="hover-text">
+						<a href="html/小组件/小游戏/猜数字.html">🔀猜数字</a>
+						<button class="fav-btn" onclick="toggleFav(this, '猜数字', 'html/小组件/小游戏/猜数字.html', '🔀', 'game')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="html/小组件/小游戏/卡罗牌(外援).html">🔮卡罗牌</a>
+						<button class="fav-btn" onclick="toggleFav(this, '卡罗牌', 'html/小组件/小游戏/卡罗牌(外援).html', '🔮', 'game')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="html/小组件/小游戏/lz.html">✨鼠标拖尾纵享版</a>
+						<button class="fav-btn" onclick="toggleFav(this, '鼠标拖尾', 'html/小组件/小游戏/lz.html', '✨', 'game')">☆</button>
+					</li>
+				</ul>
+			</td>
+			
+			<td style="vertical-align: top; padding-right: 40px;">
+				<h3 style="color: #666; margin-bottom: 15px; padding-left: 10px; border-left: 4px solid #5BA4A4;">🔧 实用工具</h3>
+				<ol type="1">
+					<li class="hover-text">
+						<a href="http://myfreemp3.sharerj.com/" target="_blank">🎶音频获取（维护中）</a>
+						<button class="fav-btn" onclick="toggleFav(this, '音频获取', 'http://myfreemp3.sharerj.com/', '🎶', 'util')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="https://snapany.com/zh/bilibili" target="_blank">🎥视频解析</a>
+						<button class="fav-btn" onclick="toggleFav(this, '视频解析', 'https://snapany.com/zh/bilibili', '🎥', 'util')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="https://www.jyshare.com/imglibs/" target="_blank">🔧菜鸟工具</a>
+						<button class="fav-btn" onclick="toggleFav(this, '菜鸟工具', 'https://www.jyshare.com/imglibs/', '🔧', 'util')">☆</button>
+					</li>
+				</ol>
+			</td>
+			
+			<td style="vertical-align: top;">
+				<h3 style="color: #666; margin-bottom: 15px; padding-left: 10px; border-left: 4px solid #5BA4A4;">🔗 链接</h3>
+				<ol type="a">
+					<li class="hover-text">
+						<a href="https://www.chaoxing.com/" target="_blank">📚学习通</a>
+						<button class="fav-btn" onclick="toggleFav(this, '学习通', 'https://www.chaoxing.com/', '📚', 'link')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="https://www.bilibili.com/" target="_blank">📺bilbil</a>
+						<button class="fav-btn" onclick="toggleFav(this, 'bilbil', 'https://www.bilibili.com/', '📺', 'link')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="https://www.douyin.com/" target="_blank">🎼抖音</a>
+						<button class="fav-btn" onclick="toggleFav(this, '抖音', 'https://www.douyin.com/', '🎼', 'link')">☆</button>
+					</li>
+				</ol>
+			</td> 
+		<td style="text-align: right;">
+			<a href="html/小组件/小游戏/舍长传/yin.html" style="color: #f2fdff; margin-right: 15px;" target="_blank">看不到我</a>
+		</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="html/小组件/小游戏/舍长传/yin.html" style="color: #f2fdff;"target="_blank">看不到我</a></td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td><button class="music-btn" onclick="togglePlayPause();">
+			<span class="music-icon">🎵</span>音乐
+		</button></td>
+	</tr>
+	</table>
+</div>
+</div>
+
+<div id="sc" class="content">
+    <h2 style="text-align: center;">我的收藏</h2>
+    <div id="toolFavs"><h3>🛠️ 工具</h3></div>
+    <div id="gameFavs"><h3>🎮 游戏</h3></div>
+    <div id="utilFavs"><h3>🔧 实用工具</h3></div>
+    <div id="linkFavs"><h3>🔗 链接</h3></div>
+</div>
+
+<div id="about" class="content">
+	<h2 class="hover-text" style="text-align: left;">关于我们<a href="mailto:18923752026@163.com" style="color: black;">📩</a></h2>
+    <p>
+	  <a>本网站由&nbsp;<cite style="color: lightskyblue;">cursor</cite>&nbsp;赞助播出💬</a>
+	  <sub><i>&nbsp;&nbsp;&nbsp;&nbsp;试着将鼠标向下滑两下吧</i></sub>
+	  <b><a href="html/小组件/小游戏/格子点(外援)/index.html"style="color:#f2fdff;" class="hover-text"target="_blank">小彩蛋</a></b>
+	</p>
+	<iframe 
+		src="html/小组件/小游戏/lz.html" 
+		class="responsive-iframe" 
+		style="height: 675px;" 
+	></iframe>
+	<div style="background-color: #ebf5f5; border-radius: 8px;" class="bias">
+		<blockquote style="text-align: center; color: grey;">版权所有&nbsp;&copy;Yez&nbsp;2024/10/20</blockquote>
+	</div>
+</div>
+
+<div id="clock-wrapper" style="
+    position: fixed;
+    top: -17px;
+    right: 140px;
+    width: 200px;
+    height: 100px;
+    background: transparent;
+    z-index: 1000;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 10px;
+">
+    <iframe 
+        src="html/分主页/time.html" 
+        style="
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            pointer-events: none;
+        "
+    ></iframe>
+</div>
+
+<div class="nav">
+    <a href="#myself" class="nav-item">
+        <span class="nav-icon">👤</span>
+        <span class="nav-text">我的</span>
+    </a>
+    <a href="#home" class="nav-item">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-text">首页</span>
+    </a>
+    <a href="#sc" class="nav-item">
+        <span class="nav-icon">❤️</span>
+        <span class="nav-text">收藏</span>
+    </a>
+    <a href="#about" class="nav-item">
+        <span class="nav-icon">ℹ️</span>
+        <span class="nav-text">关于我们</span>
+    </a>
+</div>
+
+<script>
+    // 获取所有的导航链接（包括顶部和右侧）
+    const navLinks = document.querySelectorAll('.navbar a, .nav-item');
+    const contents = document.querySelectorAll('.content');
+
+    // 为所有导航链接添加点击事件
+    navLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // 获取目标内容区域的ID
+            const targetId = this.getAttribute('href').slice(1);
+            
+            // 移除所有导航链接的active类
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // 为当前点击的链接添加active类
+            this.classList.add('active');
+            
+            // 隐藏所有内容
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 显示目标内容
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        });
+    });
+	
+	// 控制音频播放和暂停的函数
+	function togglePlayPause() {
+	    var audio = document.getElementById('yy');
+	    var musicBtn = document.querySelector('.music-btn');
+	    
+	    if (audio.paused) {
+	        audio.play();
+	        musicBtn.classList.add('playing');
+	        musicBtn.innerHTML = '<span class="music-icon">🎵</span>音乐开';
+	    } else {
+	        audio.pause();
+	        musicBtn.classList.remove('playing');
+	        musicBtn.innerHTML = '<span class="music-icon">🎵</span>音乐关';
+	    }
+	}
+
+(function() {
+    var script = document.createElement('script');
+    script.src = '//' + (location.host || 'localhost').split(':')[0] + ':35929/livereload.js?snipver=1';
+    document.head.appendChild(script);
+})();
+
+document.addEventListener('LiveReloadDisconnect', function() {
+    setTimeout(function() {
+        window.location.reload();
+    }, 500);
+});
+
+// 获取收藏数据
+function getFavs() {
+    return JSON.parse(localStorage.getItem('favorites') || '[]');
+}
+
+// 保存收藏数据
+function saveFavs(favs) {
+    localStorage.setItem('favorites', JSON.stringify(favs));
+}
+
+// 在 script 标签中添加创建粒子的函数
+function createParticles(x, y) {
+    const particleCount = 15;  // 增加粒子数量
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        // 计算随机扩散方向
+        const angle = (i * (360 / particleCount)) * Math.PI / 180;
+        const velocity = 50 + Math.random() * 30;  // 增加随机速度
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+        
+        // 设置粒子初始位置
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        
+        // 设置粒子运动方向
+        particle.style.setProperty('--tx', `${tx}px`);
+        particle.style.setProperty('--ty', `${ty}px`);
+        
+        document.body.appendChild(particle);
+        
+        // 动画结束后移除粒子
+        setTimeout(() => {
+            particle.remove();
+        }, 600);
+    }
+}
+
+// 修改 toggleFav 函数
+function toggleFav(btn, title, url, icon, category) {
+    event.stopPropagation();
+    
+    const favs = getFavs();
+    const index = favs.findIndex(f => f.url === url);
+    
+    if (index === -1) {
+        // 添加收藏
+        favs.push({ title, url, icon, category });
+        saveFavs(favs);
+        
+        const rect = btn.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        createParticles(x, y);
+        
+        btn.classList.add('active');
+        btn.innerHTML = '⭐';
+        
+        // 立即更新收藏列表
+        updateFavLists();
+    } else {
+        // 取消收藏时添加动画
+        btn.classList.add('removing');
+        
+        // 同步更新收藏页面中的对应项动画效果
+        const scContent = document.getElementById('sc');
+        if (scContent) {
+            const scButtons = scContent.querySelectorAll('.fav-btn');
+            scButtons.forEach(scBtn => {
+                const scUrl = scBtn.getAttribute('data-url');
+                if (scUrl === url) {
+                    scBtn.classList.add('removing');
+                    const favItem = scBtn.closest('.fav-item');
+                    if (favItem) {
+                        favItem.style.transition = 'opacity 0.5s ease-out';
+                        favItem.style.opacity = '0';
+                    }
+                }
+            });
+        }
+        
+        setTimeout(() => {
+            favs.splice(index, 1);
+            saveFavs(favs);
+            
+            // 更新所有相关按钮的状态
+            document.querySelectorAll('.fav-btn').forEach(button => {
+                const buttonUrl = button.getAttribute('data-url') || 
+                                button.previousElementSibling?.getAttribute('href');
+                if (buttonUrl === url) {
+                    button.classList.remove('active', 'removing');
+                    button.innerHTML = '☆';
+                }
+            });
+            
+            // 动画结束后更新收藏列表
+            updateFavLists();
+        }, 500);
+    }
+}
+
+// 修改 updateFavLists 函数
+function updateFavLists() {
+    const favs = getFavs();
+    
+    // 更新收藏页面的内容
+    const scContent = document.getElementById('sc');
+    if (scContent) {
+        if (favs.length === 0) {
+            // 保留标题，只更新内容区域
+            document.getElementById('toolFavs').innerHTML = '<h3>🛠️ 工具</h3>';
+            document.getElementById('gameFavs').innerHTML = '<h3>🎮 游戏</h3>';
+            document.getElementById('utilFavs').innerHTML = '<h3>🔧 实用工具</h3>';
+            document.getElementById('linkFavs').innerHTML = '<h3>🔗 链接</h3>';
+            
+            // 添加空状态提示
+            scContent.appendChild(document.createElement('div')).innerHTML = `
+                <div style="text-align: center; margin-top: 50px; color: #999;">
+                    <p class="hover-text">暂无收藏内容</p>
+                </div>
+            `;
+        } else {
+            // 按类别分组显示收藏内容
+            const toolFavs = favs.filter(f => f.category === 'tool');
+            const gameFavs = favs.filter(f => f.category === 'game');
+            const utilFavs = favs.filter(f => f.category === 'util');
+            const linkFavs = favs.filter(f => f.category === 'link');
+
+            document.getElementById('toolFavs').innerHTML = '<h3>🛠️ 工具</h3>' + 
+                (toolFavs.length ? toolFavs.map(createFavItem).join('') : '');
+            document.getElementById('gameFavs').innerHTML = '<h3>🎮 游戏</h3>' + 
+                (gameFavs.length ? gameFavs.map(createFavItem).join('') : '');
+            document.getElementById('utilFavs').innerHTML = '<h3>🔧 实用工具</h3>' + 
+                (utilFavs.length ? utilFavs.map(createFavItem).join('') : '');
+            document.getElementById('linkFavs').innerHTML = '<h3>🔗 链接</h3>' + 
+                (linkFavs.length ? linkFavs.map(createFavItem).join('') : '');
+        }
+    }
+
+    // 更新所有按钮状态
+    document.querySelectorAll('.fav-btn').forEach(btn => {
+        const url = btn.previousElementSibling?.getAttribute('href');
+        if (url) {
+            const isFavorited = favs.some(f => f.url === url);
+            btn.classList.toggle('active', isFavorited);
+            btn.innerHTML = isFavorited ? '⭐' : '☆';
+        }
+    });
+}
+
+// 辅助函数：创建收藏项的 HTML
+function createFavItem(item) {
+    return `
+        <div class="fav-item">
+            <a href="${item.url}" target="_blank">${item.icon}${item.title}</a>
+            <button class="fav-btn active" 
+                    onclick="toggleFav(this, '${item.title}', '${item.url}', '${item.icon}', '${item.category}')"
+                    data-url="${item.url}">⭐</button>
+        </div>
+    `;
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', () => {
+    updateFavLists();
+});
+
+function getFavorites() {
+    return JSON.parse(localStorage.getItem('favorites') || '[]');
+}
+
+function toggleFavorite(id) {
+    let favs = getFavorites();
+    const index = favs.indexOf(id);
+    
+    if (index === -1) {
+        favs.push(id);
+    } else {
+        favs.splice(index, 1);
+    }
+    
+    localStorage.setItem('favorites', JSON.stringify(favs));
+    
+    // 更新收藏图标状态
+    const icon = document.querySelector(`[data-id="${id}"] .favorite-icon`);
+    if (icon) {
+        icon.textContent = index === -1 ? '★' : '☆';
+        icon.style.color = index === -1 ? '#FFD700' : '#999';
+    }
+
+    // 如果在收藏页面，立即更新显示
+    if (window.location.pathname.includes('收藏.html')) {
+        displayFavorites();
+    }
+}
+
+function displayFavorites() {
+    const favoritesContainer = document.getElementById('favorites-container');
+    if (!favoritesContainer) return;
+
+    const favs = getFavorites();
+    const allItems = document.querySelectorAll('.item');
+    
+    favoritesContainer.innerHTML = '';
+    
+    allItems.forEach(item => {
+        const id = item.getAttribute('data-id');
+        if (favs.includes(id)) {
+            const clonedItem = item.cloneNode(true);
+            // 更新收藏图标状态
+            const icon = clonedItem.querySelector('.favorite-icon');
+            if (icon) {
+                icon.textContent = '★';
+                icon.style.color = '#FFD700';
+            }
+            favoritesContainer.appendChild(clonedItem);
+        }
+    });
+
+    // 如果没有收藏项目，显示提示信息
+    if (favoritesContainer.children.length === 0) {
+        favoritesContainer.innerHTML = '<p style="text-align: center; color: #666;">暂无收藏项目</p>';
+    }
+}
+
+// 页面加载时初始化收藏图标状态
+document.addEventListener('DOMContentLoaded', function() {
+    const favs = getFavorites();
+    const icons = document.querySelectorAll('.favorite-icon');
+    
+    icons.forEach(icon => {
+        const id = icon.closest('[data-id]').getAttribute('data-id');
+        if (favs.includes(id)) {
+            icon.textContent = '★';
+            icon.style.color = '#FFD700';
+        }
+    });
+
+    // 如果在收藏页面，显示收藏内容
+    if (window.location.pathname.includes('收藏.html')) {
+        displayFavorites();
+    }
+});
+
+// 初始化音乐按钮状态
+document.addEventListener('DOMContentLoaded', function() {
+    const musicBtn = document.querySelector('.music-btn');
+    musicBtn.innerHTML = '<span class="music-icon">🎵</span>音乐关';
+});
+            // 加载动画控制
+            let loadingFrame = null;
+
+            function showPageLoading() {
+                if (!loadingFrame) {
+                    loadingFrame = document.getElementById('loadingFrame');
+                }
+                if (loadingFrame && loadingFrame.contentWindow) {
+                    loadingFrame.contentWindow.showLoading();
+                }
+            }
+
+            function hidePageLoading() {
+                if (!loadingFrame) {
+                    loadingFrame = document.getElementById('loadingFrame');
+                }
+                if (loadingFrame && loadingFrame.contentWindow) {
+                    loadingFrame.contentWindow.hideLoading();
+                }
+            }
+
+            // 页面加载完成时隐藏加载动画
+            window.addEventListener('load', function() {
+                hidePageLoading();
+            });
+
+            // 在点击链接时显示加载动画
+            document.addEventListener('DOMContentLoaded', function() {
+                const links = document.querySelectorAll('a[target="myframe"]');
+                links.forEach(link => {
+                    link.addEventListener('click', function() {
+                        showPageLoading();
+                    });
+                });
+            });
+        </script>
+</body>
+</html>
