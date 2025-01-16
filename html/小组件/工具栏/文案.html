@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机文案</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --hover-color: #45a049;
+            --bg-color: #f0f0f0;
+            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg-color);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .quote {
+            font-size: 18px;
+            line-height: 1.6;
+            margin: 20px 0;
+            min-height: 60px;
+            color: #333;
+            transition: opacity 0.3s ease;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+            max-width: 200px;
+        }
+
+        button:hover {
+            background-color: var(--hover-color);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .home-btn {
+            background-color: #666;
+        }
+
+        .home-btn:hover {
+            background-color: #555;
+        }
+
+        audio {
+            display: none;
+        }
+
+        @media screen and (max-width: 768px) {
+            .card {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .quote {
+                font-size: 16px;
+            }
+
+            button {
+                width: 100%;
+                max-width: none;
+                padding: 10px;
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+        }
+
+        /* 添加动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quote.updating {
+            animation: fadeIn 0.3s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <audio autoplay loop preload="auto" src="../../../music/Near%20Light.mp3"></audio>
+    
+    <div class="card">
+        <p id="quoteText" class="quote">点击按钮获取随机文案</p>
+        <div class="button-container">
+            <button onclick="getRandomQuote()">获取随机文案</button>
+            <button class="home-btn" onclick="window.location.href='../../../index.html'">返回主页</button>
+        </div>
+    </div>
+
+    <script>
+        const quotes = [
+        "与梦想相遇，与努力相拥，人生绽放最美的光芒",
+        "不止于活着，而是要用心感受生命的每一个瞬间",
+        "在这个瞬息万变的世界，保持一颗不变的初心，坚定前行",
+        "勇敢去追逐，因为只有奔向梦想的路上，才能找到真正的自己",
+        "生活如诗，每一行都值得我们用心体味",
+        "用微笑迎接每一天，因为阳光总会照亮前行的路",
+        "不要停下脚步，因为世界太美，而你正值花季",
+        "做自己喜欢的事情，让生活变得丰富多彩",
+        "在平凡中创造不平凡，这就是生活最美的秘密",
+        "每一个努力都是一次闪耀，为自己点亮人生的星光",
+        "相信自己的力量，你能超越生活的一切阻碍",
+        "用心倾听，因为每个人都有一个动人的故事",
+        "不必比拼，因为每个人的光芒都是独一无二的",
+        "在人生的舞台上，你是自己的主角，创造属于你的精彩",
+        "热爱生活，生活也会用美好回应你的热情",
+        "勇敢做不同，因为世界需要你独特的贡献",
+        "成功的背后是无数次的坚持，坚持的背后是无尽的收获",
+        "每一次选择都是一次决定，每一次努力都是一次积累",
+        "用心体验，因为生命的真谛就在于感受",
+        "在前行的路上，不要怕迷失，因为迷失也是发现的开始"
+        ];
+
+        function getRandomQuote() {
+            const quoteText = document.getElementById('quoteText');
+            quoteText.classList.remove('updating');
+            
+            // 触发重排以重新启动动画
+            void quoteText.offsetWidth;
+            
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            quoteText.textContent = quotes[randomIndex];
+            quoteText.classList.add('updating');
+        }
+    </script>
+</body>
+</html>

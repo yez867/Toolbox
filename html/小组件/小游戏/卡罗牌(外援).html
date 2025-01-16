@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>塔罗牌占卜</title>
+    <style>
+        :root {
+            --primary-color: #6a4c93;
+            --secondary-color: #8b5fbf;
+            --bg-color: #f5f0ff;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --shadow: 0 8px 16px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+            --gradient: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: '楷体', sans-serif;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-color);
+            background-image: linear-gradient(45deg, #f5f0ff 25%, #e8e0ff 25%, #e8e0ff 50%, #f5f0ff 50%, #f5f0ff 75%, #e8e0ff 75%, #e8e0ff);
+            background-size: 40px 40px;
+            overflow-x: hidden;
+        }
+
+        .tarot-container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            width: 95%;
+            max-width: 1200px;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .title {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            display: inline-block;
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background: var(--gradient);
+            border-radius: 2px;
+        }
+
+        .question-input {
+            width: 100%;
+            max-width: 600px;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            margin: 0 auto 20px;
+            transition: var(--transition);
+            outline: none;
+            display: block;
+            font-family: inherit;
+        }
+
+        .question-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px rgba(106, 76, 147, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover::before {
+            transform: translateX(0);
+        }
+
+        .draw-btn {
+            background: var(--gradient);
+            font-weight: bold;
+            min-width: 200px;
+        }
+
+        .home-btn {
+            background: var(--secondary-color);
+            min-width: 160px;
+        }
+
+        .music-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent !important;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: var(--transition);
+            padding: 5px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .music-btn:hover {
+            transform: rotate(30deg) scale(1.1);
+            background: transparent !important;
+            box-shadow: none;
+        }
+
+        .cards-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+            perspective: 1000px;
+        }
+
+        .tarot-card {
+            background: linear-gradient(145deg, #ffffff, #f8f8f8);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .tarot-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tarot-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+        }
+
+        .tarot-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            font-weight: bold;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .card-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 2px;
+            background: var(--gradient);
+            border-radius: 1px;
+        }
+
+        .card-meaning {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.1em;
+            text-align: left;
+            padding: 0 10px;
+        }
+
+        .loading {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            margin: 40px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+            width: 24px;
+            display: inline-block;
+            text-align: left;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40%, 60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        audio {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .tarot-container {
+                padding: 20px;
+                width: 100%;
+            }
+
+            .title {
+                font-size: 2em;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 15px 20px;
+            }
+
+            .question-input {
+                font-size: 16px;
+                padding: 12px 15px;
+            }
+
+            .tarot-card {
+                min-height: 300px;
+                padding: 20px;
+            }
+
+            .card-title {
+                font-size: 1.3em;
+            }
+
+            .card-meaning {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="yy" autoplay loop preload="auto" src="../../../music/shootout.mp3"></audio>
+    
+    <div class="tarot-container">
+        <h1 class="title">塔罗牌占卜</h1>
+        <button onclick="togglePlayPause()" class="music-btn" title="播放/暂停音乐">🎵</button>
+        
+        <input type="text" 
+               id="question" 
+               class="question-input" 
+               placeholder="请输入你想占卜的问题..."
+               onkeypress="handleKeyPress(event)">
+        
+        <div class="button-group">
+            <button class="btn draw-btn" onclick="drawCards()">
+                <span>🔮 抽取塔罗牌</span>
+            </button>
+            <a href="../../../index.html" class="btn home-btn">
+                <img src="../../../img/主页标识.png" width="24" alt="主页">
+                <span>返回主页</span>
+            </a>
+        </div>
+
+        <div id="tarotCards" class="cards-wrapper"></div>
+    </div>
+
+    <script>
+        const tarotCardsData = [
+            { name: "愚者", meaning: "新的开始，冒险精神，纯真，自发性，无限可能" },
+            { name: "魔术师", meaning: "创造力，技能，意志力，自信，专注，实现" },
+            { name: "女祭司", meaning: "直觉，神秘，内在知识，潜意识，智慧" },
+            { name: "女皇", meaning: "丰饶，母性，创造力，自然，感性，滋养" },
+            { name: "皇帝", meaning: "权威，领导力，稳定，控制，父性，秩序" },
+            { name: "教皇", meaning: "智慧，传统，指导，精神追求，信仰，教导" },
+            { name: "恋人", meaning: "爱情，和谐，关系，选择，价值观，联结" },
+            { name: "战车", meaning: "胜利，意志力，自律，决心，进取，征服" },
+            { name: "力量", meaning: "勇气，内在力量，耐心，温和，自信，掌控" },
+            { name: "隐士", meaning: "内省，智慧，独处，指引，寻求真理，觉醒" },
+            { name: "命运之轮", meaning: "命运，转变，机会，循环，进展，变化" },
+            { name: "正义", meaning: "公正，平衡，诚实，因果，决策，真理" },
+            { name: "倒吊人", meaning: "牺牲，新视角，等待，反思，超脱，顿悟" },
+            { name: "死神", meaning: "结束，转变，释放，重生，转折点，蜕变" },
+            { name: "节制", meaning: "平衡，调和，耐心，适度，融合，疗愈" },
+            { name: "恶魔", meaning: "束缚，欲望，执着，物质主义，阴影面，诱惑" },
+            { name: "塔", meaning: "突变，启示，解放，动荡，觉醒，突破" },
+            { name: "星星", meaning: "希望，灵感，指引，信心，治愈，启发" },
+            { name: "月亮", meaning: "直觉，梦想，幻想，恐惧，潜意识，神秘" },
+            { name: "太阳", meaning: "快乐，成功，活力，正面能量，光明，温暖" },
+            { name: "审判", meaning: "重生，觉醒，改变，评估，召唤，觉醒" },
+            { name: "世界", meaning: "完成，圆满，整合，成就，旅程，圆满" }
+        ];
+
+        let isDrawing = false;
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                drawCards();
+            }
+        }
+
+        function drawCards() {
+            const question = document.getElementById('question').value.trim();
+            if (!question) {
+                showMessage('请先输入你想占卜的问题');
+                return;
+            }
+
+            if (isDrawing) return;
+            isDrawing = true;
+
+            const cardsContainer = document.getElementById('tarotCards');
+            cardsContainer.innerHTML = '<div class="loading">正在解读命运</div>';
+
+            setTimeout(() => {
+                const drawnCards = getRandomCards(3);
+                displayCards(drawnCards);
+                isDrawing = false;
+            }, 1500);
+        }
+
+        function getRandomCards(count) {
+            const cards = [...tarotCardsData];
+            const result = [];
+            for (let i = 0; i < count; i++) {
+                const index = Math.floor(Math.random() * cards.length);
+                result.push({
+                    ...cards[index],
+                    isReversed: Math.random() < 0.5,
+                    position: ['过去', '现在', '未来'][i]
+                });
+                cards.splice(index, 1);
+            }
+            return result;
+        }
+
+        function displayCards(cards) {
+            const cardsContainer = document.getElementById('tarotCards');
+            cardsContainer.innerHTML = '';
+            
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'tarot-card';
+                
+                const meaningText = card.isReversed ? 
+                    `逆位解读：表示${card.meaning}的受阻或反面特质` : 
+                    `正位解读：${card.meaning}`;
+                
+                cardElement.innerHTML = `
+                    <h3 class="card-title">${card.position} - ${card.name} ${card.isReversed ? '(逆位)' : '(正位)'}</h3>
+                    <p class="card-meaning">${meaningText}</p>
+                `;
+                
+                cardsContainer.appendChild(cardElement);
+
+                // 使用 setTimeout 创建级联动画效果
+                setTimeout(() => {
+                    cardElement.classList.add('show');
+                }, index * 300);
+            });
+
+            localStorage.setItem('lastDrawnCards', JSON.stringify(cards));
+        }
+
+        window.onload = function() {
+            const lastDrawnCards = localStorage.getItem('lastDrawnCards');
+            if (lastDrawnCards) {
+                displayCards(JSON.parse(lastDrawnCards));
+            }
+
+            // 检查并设置音乐按钮初始状态
+            const audio = document.getElementById('yy');
+            const musicBtn = document.querySelector('.music-btn');
+            musicBtn.style.opacity = audio.paused ? '0.6' : '1';
+        }
+
+        function togglePlayPause() {
+            const audio = document.getElementById('yy');
+            const musicBtn = document.querySelector('.music-btn');
+            
+            if (audio.paused) {
+                audio.play().catch(() => {
+                    console.log('自动播放被阻止');
+                });
+                musicBtn.style.opacity = '1';
+            } else {
+                audio.pause();
+                musicBtn.style.opacity = '0.6';
+            }
+        }
+
+        function showMessage(message) {
+            alert(message);
+        }
+    </script>
+</body>
+</html>

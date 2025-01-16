@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>视频播放</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			.video-container {
+				position: relative;
+				width: 100%;
+				height: 100vh;
+				overflow: hidden;
+				background: #000;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.video-player {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				background: #000;
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+			}
+
+			.video-controls {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				background: rgba(0, 0, 0, 0.3);
+				padding: 10px;
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				opacity: 0;
+				transition: opacity 0.3s ease;
+			}
+
+			.video-container:hover .video-controls {
+				opacity: 1;
+			}
+
+			.control-btn {
+				background: none;
+				border: none;
+				color: white;
+				cursor: pointer;
+				width: 30px;
+				height: 30px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 16px;
+				transition: all 0.3s ease;
+				background-color: rgba(0, 0, 0, 0.3);
+				border-radius: 50%;
+			}
+
+			.control-btn:hover {
+				background-color: rgba(0, 0, 0, 0.6);
+				transform: scale(1.1);
+			}
+
+			.progress-container {
+				flex: 1;
+				height: 4px;
+				background: rgba(255, 255, 255, 0.3);
+				cursor: pointer;
+				border-radius: 2px;
+				position: relative;
+			}
+
+			.progress-bar {
+				height: 100%;
+				background: #fff;
+				border-radius: 2px;
+				width: 0;
+				transition: width 0.1s linear;
+			}
+
+			.time-display {
+				color: white;
+				font-size: 14px;
+				min-width: 100px;
+				text-align: center;
+			}
+
+			@media screen and (max-width: 768px) {
+				.video-container {
+					height: 100vh;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="video-container">
+			<video 
+				class="video-player" 
+				id="videoPlayer"
+				preload="auto"
+				playsinline
+				webkit-playsinline
+				loop
+				muted
+			>
+				<source src="../../img/rain.mp4" type="video/mp4">
+				您的浏览器不支持视频播放。
+			</video>
+			<div class="video-controls">
+				<button class="control-btn" id="fullscreenBtn">⛶</button>
+			</div>
+		</div>
+
+		<script>
+			const videoPlayer = document.getElementById('videoPlayer');
+			const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+			// 全屏控制
+			function toggleFullscreen() {
+				if (!document.fullscreenElement) {
+					videoPlayer.requestFullscreen();
+				} else {
+					document.exitFullscreen();
+				}
+			}
+
+			// 事件监听
+			videoPlayer.addEventListener('click', () => {
+				if (videoPlayer.paused) {
+					videoPlayer.play();
+				}
+			});
+			fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+			// 加载状态处理
+			videoPlayer.addEventListener('loadstart', () => {
+				if (window.parent && window.parent.showPageLoading) {
+					window.parent.showPageLoading();
+				}
+			});
+
+			videoPlayer.addEventListener('canplay', () => {
+				if (window.parent && window.parent.hidePageLoading) {
+					window.parent.hidePageLoading();
+				}
+			});
+
+			videoPlayer.addEventListener('error', (e) => {
+				console.error('视频加载错误:', e);
+				if (window.parent && window.parent.hidePageLoading) {
+					window.parent.hidePageLoading();
+				}
+			});
+
+			// 自动播放
+			videoPlayer.play().catch(() => {
+				console.log('自动播放失败，需要用户交互');
+			});
+		</script>
+	</body>
+</html> 

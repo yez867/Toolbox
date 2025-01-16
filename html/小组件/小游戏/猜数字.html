@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>猜数字</title>
+<style>
+  :root {
+    --primary-color: #4CAF50;
+    --hover-color: #45a049;
+    --bg-color: #f5f5f5;
+    --text-color: #333;
+    --shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  body {
+    font-family: '楷体', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  #game {
+    text-align: center;
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    max-width: 500px;
+    width: 90%;
+  }
+
+  h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    font-size: 2em;
+  }
+
+  .input-group {
+    margin: 1.5rem 0;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  input {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    width: 120px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+  }
+
+  button {
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  button:hover {
+    background-color: var(--hover-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .return-btn {
+    background-color: #666;
+  }
+
+  .return-btn:hover {
+    background-color: #555;
+  }
+
+  .music-btn {
+    background: transparent;
+    color: var(--text-color);
+    padding: 8px;
+  }
+
+  .music-btn:hover {
+    background: rgba(0,0,0,0.1);
+    transform: none;
+    box-shadow: none;
+  }
+
+  #feedback {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1.1em;
+    min-height: 60px;
+  }
+
+  .success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  .hint {
+    background-color: #fff3e0;
+    color: #ef6c00;
+  }
+
+  .stats {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 1.5em;
+    color: var(--primary-color);
+    font-weight: bold;
+  }
+
+  .stat-label {
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  @media (max-width: 480px) {
+    #game {
+      padding: 1rem;
+    }
+
+    .input-group {
+      flex-direction: column;
+    }
+
+    input {
+      width: 80%;
+    }
+
+    .stats {
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+  }
+
+  audio {
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <audio id="yy" loop preload="auto" src="../../../music/opening.mp3"></audio>
+  
+  <div id="game">
+    <h2>猜数字游戏</h2>
+    <p>我已经想好了一个1到100之间的数字</p>
+    <p>你还有<span id="attempts">10</span>次机会</p>
+    
+    <div class="input-group">
+      <input type="number" id="guess" placeholder="输入数字" min="1" max="100" onkeypress="handleKeyPress(event)">
+      <button onclick="checkGuess()">🎲 猜一猜</button>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div class="input-group">
+      <button class="return-btn" onclick="window.location.href='../../../index.html'">🏠 返回主页</button>
+      <button class="music-btn" onclick="togglePlayPause()">🎵 音乐</button>
+      <button onclick="resetGame()">🔄 重新开始</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-value" id="gamesPlayed">0</div>
+        <div class="stat-label">游戏次数</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="bestScore">-</div>
+        <div class="stat-label">最佳成绩</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="currentStreak">0</div>
+        <div class="stat-label">当前连胜</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let secretNumber = Math.floor(Math.random() * 100) + 1;
+  let attempts = 10;
+  let gameOver = false;
+  let gamesPlayed = parseInt(localStorage.getItem('gamesPlayed') || '0');
+  let bestScore = parseInt(localStorage.getItem('bestScore') || '0');
+  let currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
+
+  // 初始化统计数据显示
+  updateStats();
+
+  // 初始化音乐按钮状态
+  document.addEventListener('DOMContentLoaded', function() {
+    const musicBtn = document.querySelector('.music-btn');
+    musicBtn.innerHTML = '🎵 音乐关';
+  });
+
+  function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+      checkGuess();
+    }
+  }
+
+  function checkGuess() {
+    if (gameOver) {
+      return;
+    }
+
+    const guessInput = document.getElementById('guess');
+    const guess = parseInt(guessInput.value);
+    const feedback = document.getElementById('feedback');
+    
+    if (isNaN(guess) || guess < 1 || guess > 100) {
+      feedback.textContent = '请输入1到100之间的有效数字！';
+      feedback.className = 'hint';
+      return;
+    }
+
+    attempts--;
+    document.getElementById('attempts').textContent = attempts;
+
+    if (guess < secretNumber) {
+      feedback.textContent = `太小了！提示：答案比${guess}大`;
+      feedback.className = 'hint';
+    } else if (guess > secretNumber) {
+      feedback.textContent = `太大了！提示：答案比${guess}小`;
+      feedback.className = 'hint';
+    } else {
+      feedback.textContent = `🎉 恭喜你猜对了！答案就是${secretNumber}。用了${10-attempts}次就猜到了！`;
+      feedback.className = 'success';
+      gameOver = true;
+      updateGameStats(true, 10-attempts);
+    }
+
+    if (attempts === 0 && guess !== secretNumber) {
+      feedback.textContent = `游戏结束！正确答案是${secretNumber}。别灰心，再试一次吧！`;
+      feedback.className = 'hint';
+      gameOver = true;
+      updateGameStats(false);
+    }
+
+    guessInput.value = '';
+    guessInput.focus();
+  }
+
+  function updateGameStats(won, attempts) {
+    gamesPlayed++;
+    
+    if (won) {
+      currentStreak++;
+      if (!bestScore || attempts < bestScore) {
+        bestScore = attempts;
+      }
+    } else {
+      currentStreak = 0;
+    }
+
+    localStorage.setItem('gamesPlayed', gamesPlayed);
+    localStorage.setItem('bestScore', bestScore);
+    localStorage.setItem('currentStreak', currentStreak);
+
+    updateStats();
+  }
+
+  function updateStats() {
+    document.getElementById('gamesPlayed').textContent = gamesPlayed;
+    document.getElementById('bestScore').textContent = bestScore || '-';
+    document.getElementById('currentStreak').textContent = currentStreak;
+  }
+
+  function resetGame() {
+    secretNumber = Math.floor(Math.random() * 100) + 1;
+    attempts = 10;
+    gameOver = false;
+    document.getElementById('attempts').textContent = attempts;
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = '';
+    document.getElementById('guess').value = '';
+    document.getElementById('guess').focus();
+  }
+  
+  function togglePlayPause() {
+    var audio = document.getElementById('yy');
+    var musicBtn = document.querySelector('.music-btn');
+    if (audio.paused) {
+      audio.play();
+      musicBtn.innerHTML = '🎵 音乐开';
+    } else {
+      audio.pause();
+      musicBtn.innerHTML = '🎵 音乐关';
+    }
+  }
+
+  // 页面加载时聚焦输入框
+  document.getElementById('guess').focus();
+</script>
+</body>
+</html>

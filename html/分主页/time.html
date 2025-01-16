@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>简约时钟</title>
+		<style>
+			html, body {
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+				background: transparent;
+			}
+
+			body {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-family: 'Arial', sans-serif;
+				height: 100%;
+			}
+
+			.clock-container {
+				text-align: center;
+				transform: scale(0.8);
+			}
+
+			.time {
+				font-size: 48px;
+				color: #333;
+				font-weight: 300;
+				white-space: nowrap;
+				margin-bottom: 5px;
+			}
+
+			.date {
+				font-size: 20px;
+				color: #666;
+				font-weight: 300;
+				white-space: nowrap;
+			}
+
+			.colon {
+				animation: blink 1s infinite;
+			}
+
+			@keyframes blink {
+				0%, 100% { opacity: 1; }
+				50% { opacity: 0; }
+			}
+
+			/* 添加响应式样式 */
+			@media screen and (max-width: 768px) {
+				.clock-container {
+					transform: scale(0.7);
+				}
+				
+				.time {
+					font-size: 36px;
+				}
+				
+				.date {
+					font-size: 16px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="clock-container">
+			<div class="time">
+				<span id="hours">00</span>
+				<span class="colon">:</span>
+				<span id="minutes">00</span>
+				<span class="colon">:</span>
+				<span id="seconds">00</span>
+			</div>
+			<div class="date" id="date">2024/01/01</div>
+		</div>
+
+		<script>
+			function updateClock() {
+				const now = new Date();
+				
+				document.getElementById('hours').textContent = 
+					String(now.getHours()).padStart(2, '0');
+				document.getElementById('minutes').textContent = 
+					String(now.getMinutes()).padStart(2, '0');
+				document.getElementById('seconds').textContent = 
+					String(now.getSeconds()).padStart(2, '0');
+				
+				const year = now.getFullYear();
+				const month = String(now.getMonth() + 1).padStart(2, '0');
+				const day = String(now.getDate()).padStart(2, '0');
+				document.getElementById('date').textContent = 
+					`${year}/${month}/${day}`;
+			}
+
+			updateClock();
+			setInterval(updateClock, 1000);
+		</script>
+	</body>
+</html>

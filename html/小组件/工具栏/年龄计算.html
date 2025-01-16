@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>年龄计算器</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+		text-decoration: none;
+      }
+
+      body {
+        background-color: #f2fdff;
+        font-family: '楷体', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      .calculator-container {
+        background-color: #ffffff;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+        padding: 30px;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+        position: relative;
+      }
+
+      .input-group {
+        margin: 20px 0;
+      }
+
+      .date-input {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+        border: 2px solid #eee;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        outline: none;
+      }
+
+      .date-input:hover, .date-input:focus {
+        border-color: #4CAF50;
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .button-group {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #4CAF50;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .home-btn {
+        background: #2196F3;
+      }
+
+      .music-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 5px;
+        transition: transform 0.3s ease;
+      }
+
+      .music-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .result {
+        margin-top: 20px;
+        font-size: 20px;
+        min-height: 30px;
+        color: #333;
+      }
+
+      .loading {
+        display: inline-block;
+        position: relative;
+      }
+
+      .loading::after {
+        content: '';
+        width: 20px;
+        height: 20px;
+        border: 2px solid #4CAF50;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 0.6s linear infinite;
+        position: absolute;
+        right: -30px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      @keyframes spin {
+        to {
+          transform: translateY(-50%) rotate(360deg);
+        }
+      }
+
+      audio {
+        display: none;
+      }
+
+      @media (max-width: 600px) {
+        .calculator-container {
+          width: 95%;
+          padding: 20px;
+        }
+
+        .date-input {
+          font-size: 16px;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <audio id="yy" autoplay loop preload="auto" src="../../../music/your.mp3"></audio>
+
+    <div class="calculator-container">
+      <h2 style="color: #333; margin-bottom: 20px;">年龄计算器</h2>
+      
+      <div class="input-group">
+        <input type="date" id="birthDate" class="date-input" required>
+      </div>
+
+      <div class="button-group">
+        <button onclick="calculateAge()" class="btn">
+          <span>计算年龄</span>
+        </button>
+        <a href="../../../index.html" class="btn home-btn">
+          <img src="../../../img/主页标识.png" width="20" alt="主页">
+          <span>返回主页</span>
+        </a>
+      </div>
+
+      <button onclick="togglePlayPause()" class="music-btn">🎵</button>
+      
+      <div id="result" class="result">请选择您的出生日期</div>
+    </div>
+
+    <script>
+      function calculateAge() {
+        const birthDateInput = document.getElementById('birthDate');
+        const resultDiv = document.getElementById('result');
+        
+        if (!birthDateInput.value) {
+          resultDiv.innerHTML = '请选择出生日期！';
+          return;
+        }
+
+        // 添加加载动画
+        resultDiv.innerHTML = '<span class="loading">计算中</span>';
+        
+        setTimeout(() => {
+          const birthDate = new Date(birthDateInput.value);
+          const today = new Date();
+          
+          // 基本年龄计算
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          
+          // 计算具体的月份和天数
+          let months = monthDiff;
+          if (months < 0) {
+            months += 12;
+          }
+          
+          const birthDay = birthDate.getDate();
+          const currentDay = today.getDate();
+          let days = currentDay - birthDay;
+          
+          if (days < 0) {
+            const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            days += lastMonth.getDate();
+          }
+          
+          // 验证日期是否有效
+          if (birthDate > today) {
+            resultDiv.innerHTML = '出生日期不能晚于今天！';
+            return;
+          }
+          
+          // 格式化输出结果
+          let result = `您已经 ${age} 岁`;
+          if (months > 0) {
+            result += `${months} 个月`;
+          }
+          if (days > 0) {
+            result += ` ${days} 天啦！🎉`;
+          }
+          
+          // 添加一些有趣的描述
+          const totalDays = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+          result += `<br><small style="color: #666;">这是您人生的第 ${totalDays} 天呢！</small>`;
+          
+          resultDiv.innerHTML = result;
+        }, 1000);
+      }
+
+      function togglePlayPause() {
+        const audio = document.getElementById('yy');
+        const musicBtn = document.querySelector('.music-btn');
+        
+        if (audio.paused) {
+          audio.play();
+          musicBtn.style.opacity = '1';
+        } else {
+          audio.pause();
+          musicBtn.style.opacity = '0.6';
+        }
+      }
+
+      // 添加键盘事件支持
+      document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          calculateAge();
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>card
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+<meta http-equiv="Cache-Control" content="no-transform">
+<title>登录页面</title>
+<style> 
+:root {
+  --primary-color: #03a9f4;
+  --secondary-color: #e7609e;
+  --accent-color: #2ec3e7;
+  --text-color: #333;
+  --white: #fff;
+}
+
+  * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+min-height: 100vh;
+  background: linear-gradient(var(--primary-color), var(--primary-color) 10%, var(--white) 50%, var(--white) 100%);
+  font-family: '楷体', sans-serif;
+}
+
+.card_yuan {
+position: relative;
+top: 30%;
+left: -25%;
+transform: translate(-150%, -50%);
+width: 200px;
+height: 200px;
+  background-color: var(--secondary-color);
+border-radius: 50%;
+z-index: 1;
+animation: float 5s ease-in-out infinite;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.card_yuan:before {
+content: "";
+position: absolute;
+top: 0;
+left: 0;
+width: 120%;
+height: 120%;
+  background-color: var(--accent-color);
+border-radius: 50%;
+transform: translate(160%, 120%);
+z-index: 1;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.card_yuan:after {
+content: "";
+position: absolute;
+bottom: 0;
+right: 0;
+width: 90%;
+height: 90%;
+background-color: #b28fce;
+border-radius: 50%;
+transform: translate(170%, -130%);
+z-index: 1;
+  animation: pulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1) translate(160%, 120%); }
+  50% { transform: scale(1.1) translate(160%, 120%); }
+}
+
+#box_container {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100vh;
+background: rgba(0, 0, 0, 0);
+backdrop-filter: blur(15px);
+z-index: 9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card_dl {
+position: relative;
+  width: 90%;
+  max-width: 400px;
+  min-height: 400px;
+  background: rgba(255, 255, 255, 0.1);
+border: 1px solid rgba(255, 255, 255, 0.25);
+backdrop-filter: blur(25px);
+border-radius: 20px;
+  padding: 30px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+/* 
+.card_dl:hover {
+  transform: translateY(-5px);
+ */}
+
+.card_dl p {
+  color: var(--white);
+  font-size: 20px !important;  /* 设置固定像素大小 */
+  font-weight: 900;
+  margin-bottom: 30px;
+  text-shadow: 2px 3px rgba(0,0,0,0.1);
+  width: 100%;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.input-group {
+  width: 100%;
+  margin-bottom: 20px;
+position: relative;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 10px rgba(3, 169, 244, 0.3);
+}
+
+.input-group input::placeholder {
+  color: #666;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+border: none;
+  border-radius: 8px;
+  background: rgba(3, 169, 244, 0.7);
+  color: var(--white);
+  font-size: 1.1rem;
+cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+button:hover {
+  background: rgba(3, 169, 244, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(3, 169, 244, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+#sjyy {
+  width: 100%;
+  font-size: 1rem;
+  color: #2196F3;
+  text-align: center;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#sjyy:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] #sjyy {
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] #sjyy:hover {
+  background: rgba(0, 0, 0, 0.3);
+  }
+
+   #slide-kp {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  background: linear-gradient(var(--primary-color), var(--primary-color) 10%, var(--white) 50%, var(--white) 100%);
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translate(0, 0);
+  text-align: center;
+  opacity: 0;
+  z-index: 999;
+  overflow: hidden;
+}
+
+#slide-kp.active {
+  width: 104%;
+  height: 100%;
+  padding: 30px;
+  opacity: 1;
+}
+  
+.success-animation {
+  animation: success-in 0.5s ease forwards;
+}
+
+@keyframes success-in {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .card_dl {
+    width: 95%;
+    padding: 20px;
+  }
+  
+  .card_dl p {
+    font-size: 20px !important;  /* 移动端保持相同大小 */
+  }
+  
+  #sjyy {
+    font-size: 0.9rem;
+  }
+}
+
+/* 登录成功页面样式 */
+.success-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.welcome-title {
+  font-size: 3em;
+  background: linear-gradient(45deg, #2196F3, #E91E63);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  margin-bottom: 30px;
+  animation: fadeInDown 1s ease;
+}
+
+.mood-container {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: fadeIn 1s ease 0.3s both;
+}
+
+.mood-title {
+  color: #34495e;
+  margin-bottom: 20px;
+}
+
+.mood-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.mood-btn {
+  padding: 10px 20px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #00BCD4
+  }
+
+.mood-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  color: #ffffff;
+}
+
+.fun-zone {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin: 30px 0;
+}
+
+.fun-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin: 20px auto;
+}
+
+.fun-card h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #333;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #2196f3;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  background: #1976d2;
+  transform: translateY(-2px);
+}
+
+/* 每日任务样式 */
+.task-input {
+  margin-bottom: 15px;
+}
+
+.task-input input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.task-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+/* 倒数日样式 */
+.countdown-events {
+  margin-bottom: 15px;
+}
+
+.event-input {
+  margin-bottom: 15px;
+}
+
+.event-input input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.events-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.event-item:last-child {
+  border-bottom: none;
+}
+
+/* 番茄钟样式 */
+.pomodoro {
+  text-align: center;
+  padding: 10px;
+}
+
+.timer {
+  font-size: 2em;
+  font-weight: bold;
+  color: #2196f3;
+  margin: 15px 0;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.timer-mode {
+  display: flex;
+  gap: 5px;
+}
+
+.mode-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #f5f5f5;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mode-btn.active {
+  background: #2196f3;
+  color: white;
+}
+
+/* 便签墙样式 */
+.sticky-notes {
+  margin-bottom: 15px;
+}
+
+.note-input {
+  margin-bottom: 15px;
+}
+
+.note-input textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+.notes-wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.sticky-note {
+  padding: 10px;
+  border-radius: 8px;
+  min-width: 120px;
+  min-height: 120px;
+  position: relative;
+  background: #fff9c4;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.quote-box {
+  text-align: center;
+  margin-top: 30px;
+  padding: 20px;
+  animation: fadeIn 1s ease 0.9s both;
+}
+
+#dailyQuote {
+  font-size: 1.2em;
+  color: #34495e;
+  font-style: italic;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .success-content {
+    padding: 15px;
+  }
+  
+  .welcome-title {
+    font-size: 2em;
+  }
+  
+  .countdown-numbers {
+    gap: 10px;
+  }
+  
+  .countdown-item {
+    min-width: 60px;
+  }
+}
+
+/* 新增天气预报样式 */
+.weather-card {
+  background: linear-gradient(135deg, #00B4DB, #0083B0);
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.weather-info {
+  text-align: left;
+}
+
+.weather-temp {
+  font-size: 2.5em;
+  margin: 10px 0;
+}
+
+/* 新增倒计时样式 */
+.countdown-card {
+  background: linear-gradient(135deg, #FF9A8B, #FF6B6B);
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.countdown-numbers {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 15px 0;
+}
+
+.countdown-item {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px;
+  border-radius: 10px;
+  min-width: 80px;
+}
+
+.countdown-number {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.countdown-label {
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+/* 新增备忘录样式 */
+.memo-card {
+  background: linear-gradient(135deg, #FFEFBA, #FFFFFF);
+  padding: 20px;
+  border-radius: 15px;
+  margin-top: 30px;
+}
+
+.memo-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #FFD700;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.memo-input:focus {
+  outline: none;
+  border-color: #FFA500;
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
+}
+
+.memo-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.memo-item {
+  background: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: slideIn 0.3s ease;
+}
+
+/* 新增音乐播放器样式 */
+.music-player {
+  background: linear-gradient(135deg, #8E2DE2, #4A00E0);
+  color: white;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.music-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.music-btn {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-color);
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.music-btn:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-theme="dark"] .music-btn {
+  color: #fff;
+}
+
+/* 新增验证码样式 */
+.captcha-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.captcha-box {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 1.2em;
+  font-weight: bold;
+  letter-spacing: 3px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s ease;
+}
+
+.captcha-box:hover {
+  transform: scale(1.05);
+}
+
+/* 密码强度指示器 */
+.password-strength {
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  margin-top: 5px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.strength-bar {
+  height: 100%;
+  width: 0;
+  transition: all 0.3s ease;
+}
+
+/* 主题切换按钮 */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5em;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: rotate(180deg);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 动态背景 */
+.background-bubbles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: float-up 15s infinite;
+  pointer-events: none;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1);
+    opacity: 0;
+  }
+}
+
+/* 登录提示样式 */
+.login-tips {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  font-size: 0.9em;
+  color: #666;
+  max-width: 250px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.input-group:hover .login-tips {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 暗色主题样式 */
+[data-theme="dark"] {
+  --primary-color: #2196F3;
+  --secondary-color: #9C27B0;
+  --accent-color: #00BCD4;
+  --text-color: #fff;
+  --white: #fff;
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] .card_dl {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] input {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .theme-toggle {
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--white);
+}
+
+[data-theme="dark"] #sjyy {
+  color: var(--white);
+}
+
+[data-theme="dark"] button {
+  background: rgba(33, 150, 243, 0.7);
+}
+
+/* 番茄钟样式 */
+.pomodoro {
+  text-align: center;
+  padding: 15px;
+}
+
+.timer {
+  font-size: 2.5em;
+  font-weight: bold;
+  margin: 15px 0;
+  color: #2196F3;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.timer-mode {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.mode-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 15px;
+  background: #f0f0f0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mode-btn.active {
+  background: #2196F3;
+  color: white;
+}
+
+/* 每日任务样式 */
+.task-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.task-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  animation: slideIn 0.3s ease;
+}
+
+.task-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+/* 随机壁纸样式 */
+.wallpaper-img {
+  height: 150px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+/* 便签墙样式 */
+.sticky-notes {
+  position: relative;
+}
+
+.note-input {
+  margin-bottom: 15px;
+}
+
+.note-input textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+.note-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.notes-wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.sticky-note {
+  padding: 10px;
+  border-radius: 5px;
+  min-width: 120px;
+  min-height: 120px;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+/* 倒数日样式 */
+.event-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.events-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.event-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  animation: slideIn 0.3s ease;
+}
+
+/* 心情日记样式 */
+.mood-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mood-emoji {
+  font-size: 1.5em;
+  padding: 5px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.mood-emoji:hover {
+  transform: scale(1.2);
+}
+
+.diary-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* 习惯打卡样式 */
+.habit-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.habits-list {
+  margin-bottom: 15px;
+}
+
+.habit-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.habit-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  padding: 10px;
+}
+
+.calendar-day {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8em;
+  background: #f0f0f0;
+}
+
+.calendar-day.completed {
+  background: #4CAF50;
+  color: white;
+}
+
+/* 音乐电台样式 */
+.radio-player {
+  padding: 15px;
+}
+
+.radio-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.radio-cover {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background: linear-gradient(45deg, #2196F3, #9C27B0);
+}
+
+.radio-details {
+  flex: 1;
+}
+
+.radio-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.radio-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.channel-list {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.channel-btn {
+  padding: 5px 15px;
+  border: none;
+  border-radius: 15px;
+  background: #f0f0f0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.channel-btn.active {
+  background: #2196F3;
+  color: white;
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 暗色主题滚动条 */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 调整登录后页面布局 */
+#slide-kp {
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.success-content {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.fun-zone {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin: 30px 0;
+  padding-bottom: 30px;
+}
+
+/* 优化小组件内部滚动区域 */
+.task-list,
+.notes-wall,
+.events-list,
+.diary-list,
+.habits-list {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(255, 255, 255, 0.1);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .success-content {
+    margin: -30px;
+    padding: 15px;
+  }
+  
+  .fun-zone {
+    gap: 15px;
+    margin: 20px 0;
+  }
+}
+
+.wallpaper-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin: 20px auto;
+}
+
+.wallpaper-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #333;
+}
+
+.wallpaper-preview {
+  width: 100%;
+  height: 150px;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.wallpaper-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #2196f3;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wallpaper-btn:hover {
+  background: #1976d2;
+  transform: translateY(-2px);
+}
+
+/* 心情日记样式 */
+.mood-diary {
+  background: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin: 20px auto;
+}
+
+.mood-diary-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #333;
+}
+
+.mood-input {
+  margin-bottom: 15px;
+}
+
+.mood-selector {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.mood-emoji {
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.mood-emoji:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.mood-emoji.active {
+  background: #2196f3;
+  color: white;
+}
+
+#diaryInput {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  resize: none;
+  margin-bottom: 10px;
+  height: 80px;
+}
+
+.diary-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.diary-item {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* 习惯打卡样式 */
+.habits {
+  background: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin: 20px auto;
+}
+
+.habits-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #333;
+}
+
+.habit-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.habit-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.habits-list {
+  margin-bottom: 15px;
+}
+
+.habit-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.habit-item button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #2196f3;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.habit-item button:hover {
+  background: #1976d2;
+  transform: translateY(-2px);
+}
+
+.habit-item button.completed {
+  background: #4CAF50;
+}
+
+.habit-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.calendar-day {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.calendar-day.completed {
+  background: #4CAF50;
+  color: white;
+}
+
+.calendar-day.today {
+  border: 2px solid #2196f3;
+}
+
+/* 添加音乐播放器按钮样式 */
+.music-btn {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-color);
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.music-btn:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-theme="dark"] .music-btn {
+  color: #fff;
+}
+
+/* 移动端适配样式 */
+@media screen and (max-width: 768px) {
+    #box_container {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .card_dl {
+        position: fixed;
+        top: 18%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        min-height: auto;
+        padding: 25px;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        z-index: 100;
+        -webkit-transform: translateX(-50%);
+    }
+
+    .input-group {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    #loginBtn {
+        width: 100%;
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 8px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    body {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .card_yuan {
+        position: fixed;
+        z-index: 1;
+    }
+}
+</style>
+</head>
+<body>
+<!-- 音频元素 -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="../../music/wake.mp3" type="audio/mp4">
+  您的浏览器不支持音频播放
+</audio>
+
+<!-- 音乐控制按钮 -->
+<button class="music-btn" onclick="togglePlayPause()" aria-label="播放/暂停音乐">
+  <span class="music-icon">🎵</span>
+  <span class="music-text">音乐关</span>
+</button>
+
+<div id="box_container"> 
+  <div class="card_yuan"></div>
+  <div class="card_dl">
+    <p style="text-shadow: 2px 3px gainsboro; font-size: 50px;">登 录</p>
+    <form id="loginForm">
+      <div class="input-group">
+        <input type="text" placeholder="请输入账号" id="username" autocomplete="off">
+        <div class="login-tips">输入账号，默认为0</div>
+      </div>
+      <div class="input-group">
+        <input type="password" placeholder="请输入密码" id="password" oninput="checkPasswordStrength(this.value)">
+        <div class="password-strength">
+          <div class="strength-bar"></div>
+        </div>
+        <div class="login-tips">输入密码，默认为0</div>
+      </div>
+      <button type="submit" id="loginBtn">登录</button>
+    </form>
+    <i id="sjyy">开心是一天,不开心也是,不如开心每一天————随机一言</i>
+  </div>
+</div>
+
+<div id="slide-kp">
+  <div class="success-content">
+    <h1 class="welcome-title">欢迎回来！</h1>
+    
+    <!-- 天气预报卡片 -->
+    <div class="weather-card">
+      <div class="weather-info">
+        <h3>今日天气</h3>
+        <div class="weather-temp">23°C</div>
+        <p>晴朗 · 适合出行</p>
+	</div>
+      <div class="weather-icon">🌞</div>
+</div>
+    
+    <!-- 倒计时卡片 -->
+    <div class="countdown-card">
+      <h3>距离周末还有</h3>
+      <div class="countdown-numbers">
+        <div class="countdown-item">
+          <div class="countdown-number" id="days">2</div>
+          <div class="countdown-label">天</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-number" id="hours">18</div>
+          <div class="countdown-label">时</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-number" id="minutes">45</div>
+          <div class="countdown-label">分</div>
+        </div>
+        <div class="countdown-item">
+          <div class="countdown-number" id="seconds">30</div>
+          <div class="countdown-label">秒</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mood-container">
+      <h3 class="mood-title">今天心情如何？</h3>
+      <div class="mood-buttons">
+        <button class="mood-btn" onclick="selectMood('happy')">😊 开心</button>
+        <button class="mood-btn" onclick="selectMood('excited')">🤩 超嗨</button>
+        <button class="mood-btn" onclick="selectMood('chill')">😌 放松</button>
+        <button class="mood-btn" onclick="selectMood('sleepy')">😴 困乏</button>
+      </div>
+    </div>
+    
+    <div class="fun-zone">
+      <!-- 番茄钟 -->
+      <div class="fun-card">
+        <h4>⏰ 番茄钟</h4>
+        <div class="pomodoro">
+          <div class="timer" id="pomodoroTimer">25:00</div>
+          <div class="timer-controls">
+            <button onclick="startPomodoro()" class="action-btn">开始</button>
+            <button onclick="pausePomodoro()" class="action-btn">暂停</button>
+            <button onclick="resetPomodoro()" class="action-btn">重置</button>
+          </div>
+          <div class="timer-mode">
+            <button onclick="setTimer(25)" class="mode-btn active">工作</button>
+            <button onclick="setTimer(5)" class="mode-btn">短休息</button>
+            <button onclick="setTimer(15)" class="mode-btn">长休息</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 每日任务 -->
+      <div class="fun-card">
+        <h4>📝 每日任务</h4>
+        <div class="daily-tasks">
+          <div class="task-input">
+            <input type="text" id="taskInput" placeholder="添加新任务...">
+            <button onclick="addTask()" class="action-btn">添加</button>
+          </div>
+          <div class="task-list" id="taskList"></div>
+          <div class="task-stats">
+            <span>完成: <span id="completedTasks">0</span></span>
+            <span>总计: <span id="totalTasks">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 随机壁纸 -->
+      <div class="wallpaper-card">
+        <div class="wallpaper-title">
+          <span style="font-size: 20px;">🖼️</span>
+          每日壁纸
+        </div>
+        <div class="wallpaper-preview" id="wallpaperPreview"></div>
+        <button class="wallpaper-btn" onclick="changeWallpaper()">换一张</button>
+      </div>
+
+      <!-- 便签墙 -->
+      <div class="fun-card">
+        <h4>📌 便签墙</h4>
+        <div class="sticky-notes">
+          <div class="note-input">
+            <textarea id="noteInput" placeholder="写下你的想法..."></textarea>
+            <div class="note-controls">
+              <input type="color" id="noteColor" value="#FFE4B5">
+              <button onclick="addNote()" class="action-btn">添加便签</button>
+            </div>
+          </div>
+          <div class="notes-wall" id="notesWall"></div>
+        </div>
+      </div>
+
+      <!-- 倒数日 -->
+      <div class="fun-card">
+        <h4>倒数日</h4>
+        <div class="countdown-events">
+          <div class="event-input">
+            <input type="text" id="eventName" placeholder="事件名称">
+            <input type="date" id="eventDate">
+            <button onclick="addEvent()" class="action-btn">添加事件</button>
+          </div>
+          <div class="events-list" id="eventsList"></div>
+        </div>
+      </div>
+
+      <!-- 心情日记 -->
+      <div class="fun-card">
+        <h4>📔 心情日记</h4>
+        <div class="mood-diary">
+          <div class="mood-input">
+            <div class="mood-selector">
+              <button onclick="selectDiaryMood('😊')" class="mood-emoji">😊</button>
+              <button onclick="selectDiaryMood('😢')" class="mood-emoji">😢</button>
+              <button onclick="selectDiaryMood('😡')" class="mood-emoji">😡</button>
+              <button onclick="selectDiaryMood('😴')" class="mood-emoji">😴</button>
+            </div>
+            <textarea id="diaryInput" placeholder="今天的心情如何..."></textarea>
+            <button onclick="saveDiary()" class="action-btn">保存</button>
+          </div>
+          <div class="diary-list" id="diaryList"></div>
+        </div>
+      </div>
+
+      <!-- 习惯打卡 -->
+      <div class="fun-card">
+        <h4>✅ 习惯打卡</h4>
+        <div class="habits">
+          <div class="habit-input">
+            <input type="text" id="habitInput" placeholder="添加新习惯...">
+            <button onclick="addHabit()" class="action-btn">添加</button>
+          </div>
+          <div class="habits-list" id="habitsList"></div>
+          <div class="habit-calendar" id="habitCalendar"></div>
+        </div>
+      </div>
+
+      <!-- 音乐电台 -->
+      <div class="fun-card">
+        <h4>📻 音乐电台</h4>
+        <div class="radio-player">
+          <div class="radio-info">
+            <div class="radio-cover"></div>
+            <div class="radio-details">
+              <p id="radioTitle">轻音乐频道</p>
+              <p id="radioArtist">当前无播放</p>
+            </div>
+          </div>
+          <div class="radio-controls">
+            <button onclick="previousChannel()" class="radio-btn">⏮️</button>
+            <button onclick="toggleRadio()" id="radioPlayBtn" class="radio-btn">▶️</button>
+            <button onclick="nextChannel()" class="radio-btn">⏭️</button>
+          </div>
+          <div class="channel-list">
+            <button onclick="selectChannel(0)" class="channel-btn active">轻音乐</button>
+            <button onclick="selectChannel(1)" class="channel-btn">流行</button>
+            <button onclick="selectChannel(2)" class="channel-btn">古典</button>
+            <button onclick="selectChannel(3)" class="channel-btn">爵士</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="quote-box">
+      <p id="dailyQuote">每一天都是新的开始 ✨</p>
+    </div>
+  </div>
+</div>
+
+<button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+<div class="background-bubbles"></div>
+
+  <script>
+const messageElement = document.getElementById("sjyy");
+const messages = [
+  "生活就像一盒巧克力，你永远不知道下一颗是什么味道 ————随机一言",
+  "今天的风儿甚是喧嚣，但抵不过我内心的波澜壮阔 ————随机一言",
+  "人生就是一场华丽的冒险，勇敢的人先到终点 ————随机一言",
+  "别让未来的你，讨厌现在的自己 ————随机一言",
+  "没有人能够阻挡你成为更好的自己 ————随机一言",
+  "生活中的每一个细节都值得感恩 ————随机一言",
+  "做你自己，因为别人都已经有人做了 ————随机一言",
+  "保持热爱，奔赴山海 ————随机一言",
+  "愿你走出半生，归来仍是少年 ————随机一言",
+  "不要等待机会，而要创造机会 ————随机一言",
+  "星光不问赶路人，时光不负有心人 ————随机一言",
+  "当你的才华还撑不起你的野心时，就应该静下心来学习 ————随机一言",
+  "没有谁的生活会一直完美，但无论什么时候都要保持希望 ————随机一言",
+  "生活不是等待暴风雨过去，而是要学会在雨中跳舞 ————随机一言",
+  "你要相信，明天会更好 ————随机一言"
+];
+
+function randomMessage() {
+  const index = Math.floor(Math.random() * messages.length);
+  messageElement.textContent = messages[index];
+}
+
+// 初始化随机消息
+randomMessage(); 
+
+// 每30秒更换一次消息
+setInterval(randomMessage, 30000);
+
+// 登录表单处理
+document.getElementById("loginForm").addEventListener("submit", function(event) {
+  event.preventDefault(); 
+  
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const loginBtn = document.getElementById("loginBtn");
+  
+  loginBtn.disabled = true;
+  loginBtn.textContent = "登录中...";
+  
+  setTimeout(() => {
+  if (username === "0" && password === "0") {
+      loginBtn.textContent = "登录成功！";
+      loginBtn.style.background = "rgba(76, 175, 80, 0.7)";
+      
+      document.querySelector(".card_dl").classList.add("success-animation");
+      
+      setTimeout(() => {
+    document.getElementById("slide-kp").classList.add("active"); 
+      }, 500);
+  } else {
+      loginBtn.textContent = "登录失败";
+      loginBtn.style.background = "rgba(244, 67, 54, 0.7)";
+      
+      document.querySelector(".card_dl").style.animation = "shake 0.5s ease";
+      
+      setTimeout(() => {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "登录";
+        loginBtn.style.background = "rgba(3, 169, 244, 0.7)";
+        document.querySelector(".card_dl").style.animation = "";
+      }, 1000);
+    }
+  }, 800);
+});
+
+// 添加晃动动画
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+`;
+document.head.appendChild(style);
+
+// 处理返回事件
+window.addEventListener("popstate", function(event) {
+  const slidekp = document.getElementById("slide-kp");
+  if (slidekp.classList.contains("active")) {
+    slidekp.classList.remove("active");
+    history.pushState(null, null, location.href);
+  }
+});
+
+history.pushState(null, null, location.href);
+
+// 心情选择功能
+function selectMood(mood) {
+  const moods = {
+    'happy': '今天心情不错呢！继续保持 😊',
+    'excited': '超级嗨！让我们一起嗨起来 🤩',
+    'chill': '放松一下也不错，享受当下 😌',
+    'sleepy': '需要休息就好好休息吧 😴'
+  };
+  
+  document.getElementById('dailyQuote').textContent = moods[mood];
+  
+  // 添加选中效果
+  document.querySelectorAll('.mood-btn').forEach(btn => {
+    btn.style.background = 'rgba(255, 255, 255, 0.9)';
+  });
+  event.target.style.background = '#e3f2fd';
+}
+
+// 运势功能
+const fortunes = [
+  "今天的运势超级好！宜出门游玩 🌟",
+  "财运亨通，适合购物 💰",
+  "桃花运旺盛，可能遇到意想不到的人 💕",
+  "工作顺利，会有好消息传来 📈",
+  "适合学习新知识，大脑超级清晰 📚",
+  "今天要小心谨慎，低调行事为宜 🤫",
+  "贵人相助，有意外之喜 🎁"
+];
+
+function checkFortune() {
+  const fortune = document.getElementById('fortune');
+  const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+  fortune.style.animation = 'none';
+  fortune.offsetHeight; // 触发重绘
+  fortune.style.animation = 'fadeIn 1s ease';
+  fortune.textContent = randomFortune;
+}
+
+// 目标清单功能
+function addGoal() {
+  const input = document.getElementById('goalInput');
+  const list = document.getElementById('goalList');
+  
+  if (input.value.trim() === '') return;
+  
+  const li = document.createElement('li');
+  li.innerHTML = `
+    <span style="flex: 1;">${input.value}</span>
+    <button onclick="this.parentElement.remove()" 
+            style="background: none; border: none; color: #e74c3c; cursor: pointer;">
+      ❌
+    </button>
+  `;
+  
+  list.appendChild(li);
+  input.value = '';
+}
+
+// 音乐盒功能
+const songs = [
+  "🎵 轻松愉快的小调",
+  "🎵 激情澎湃的节奏",
+  "🎵 温柔舒缓的旋律",
+  "🎵 充满活力的音乐"
+];
+
+function playRandomMusic() {
+  const currentSong = document.getElementById('currentSong');
+  const randomSong = songs[Math.floor(Math.random() * songs.length)];
+  currentSong.textContent = `正在播放: ${randomSong}`;
+  currentSong.style.animation = 'fadeIn 0.5s ease';
+}
+
+// 每日名言
+const quotes = [
+  "每一个今天都是成为更好的自己的机会 ✨",
+  "保持微笑，保持前进 🌟",
+  "相信自己，你比想象中更强大 💪",
+  "今天的努力是明天的礼物 🎁",
+  "让我们一起创造美好的一天 🌈"
+];
+
+function updateQuote() {
+  const quoteElement = document.getElementById('dailyQuote');
+  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  quoteElement.textContent = randomQuote;
+}
+
+// 初始化每日名言
+updateQuote();
+// 每小时更新一次名言
+setInterval(updateQuote, 3600000);
+
+// 倒计时功能
+function updateCountdown() {
+  const now = new Date();
+  const friday = new Date();
+  friday.setDate(friday.getDate() + (5 - friday.getDay()));
+  friday.setHours(18, 0, 0, 0);
+  
+  const diff = friday - now;
+  
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  
+  document.getElementById('days').textContent = days;
+  document.getElementById('hours').textContent = hours;
+  document.getElementById('minutes').textContent = minutes;
+  document.getElementById('seconds').textContent = seconds;
+}
+
+setInterval(updateCountdown, 1000);
+
+// 备忘录功能
+function addMemo() {
+  const input = document.getElementById('memoInput');
+  const list = document.getElementById('memoList');
+  
+  if (input.value.trim() === '') return;
+  
+  const memo = document.createElement('div');
+  memo.className = 'memo-item';
+  memo.innerHTML = `
+    <span>${input.value}</span>
+    <div>
+      <button onclick="toggleMemoComplete(this)" class="action-btn" style="margin-right: 5px;">✓</button>
+      <button onclick="this.parentElement.parentElement.remove()" class="action-btn">🗑️</button>
+    </div>
+  `;
+  
+  list.appendChild(memo);
+  input.value = '';
+}
+
+function toggleMemoComplete(btn) {
+  const memo = btn.parentElement.parentElement;
+  memo.style.textDecoration = memo.style.textDecoration === 'line-through' ? 'none' : 'line-through';
+  btn.textContent = memo.style.textDecoration === 'line-through' ? '↩️' : '✓';
+}
+
+// 音乐播放器功能
+let musicIsPlaying = false;
+let currentSongIndex = 0;
+
+const songList = [
+  "🎵 轻松愉快的小调",
+  "🎵 激情澎湃的节奏",
+  "🎵 温柔舒缓的旋律",
+  "🎵 充满活力的音乐",
+  "🎵 悠扬动听的歌曲"
+];
+
+function togglePlay() {
+  musicIsPlaying = !musicIsPlaying;
+  const btn = document.getElementById('playPauseBtn');
+  btn.textContent = musicIsPlaying ? '⏸️' : '▶️';
+  
+  const currentSong = document.getElementById('currentSong');
+  currentSong.textContent = musicIsPlaying ? 
+    `正在播放: ${songList[currentSongIndex]}` : 
+    '音乐已暂停';
+}
+
+function nextSong() {
+  currentSongIndex = (currentSongIndex + 1) % songList.length;
+  if (musicIsPlaying) {
+    document.getElementById('currentSong').textContent = 
+      `正在播放: ${songList[currentSongIndex]}`;
+  }
+}
+
+function previousSong() {
+  currentSongIndex = (currentSongIndex - 1 + songList.length) % songList.length;
+  if (musicIsPlaying) {
+    document.getElementById('currentSong').textContent = 
+      `正在播放: ${songList[currentSongIndex]}`;
+  }
+}
+
+// 更新天气信息
+function updateWeather() {
+  const temperatures = [18, 20, 22, 23, 25, 21, 19];
+  const weathers = ['🌞', '⛅', '🌤️', '🌥️', '🌦️'];
+  const conditions = ['晴朗', '多云', '阴天', '小雨', '晴间多云'];
+  
+  const temp = temperatures[Math.floor(Math.random() * temperatures.length)];
+  const weatherIndex = Math.floor(Math.random() * weathers.length);
+  
+  document.querySelector('.weather-temp').textContent = `${temp}°C`;
+  document.querySelector('.weather-icon').textContent = weathers[weatherIndex];
+  document.querySelector('.weather-info p').textContent = 
+    `${conditions[weatherIndex]} · 适合出行`;
+}
+
+// 初始化
+updateWeather();
+// 每小时更新天气
+setInterval(updateWeather, 3600000);
+
+// 密码强度检测
+function checkPasswordStrength(password) {
+  const strengthBar = document.querySelector('.strength-bar');
+  let strength = 0;
+  
+  if (password.length >= 6) strength += 25;
+  if (password.match(/[A-Z]/)) strength += 25;
+  if (password.match(/[0-9]/)) strength += 25;
+  if (password.match(/[^A-Za-z0-9]/)) strength += 25;
+  
+  strengthBar.style.width = strength + '%';
+  
+  if (strength <= 25) {
+    strengthBar.style.background = '#ff4444';
+  } else if (strength <= 50) {
+    strengthBar.style.background = '#ffa700';
+  } else if (strength <= 75) {
+    strengthBar.style.background = '#2196F3';
+  } else {
+    strengthBar.style.background = '#00C851';
+  }
+}
+
+// 动态背景
+function createBubbles() {
+  const container = document.querySelector('.background-bubbles');
+  const bubbleCount = 15;
+  
+  for (let i = 0; i < bubbleCount; i++) {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    
+    const size = Math.random() * 100 + 50;
+    const left = Math.random() * 100;
+    const delay = Math.random() * 15;
+    
+    bubble.style.width = size + 'px';
+    bubble.style.height = size + 'px';
+    bubble.style.left = left + '%';
+    bubble.style.animationDelay = delay + 's';
+    
+    container.appendChild(bubble);
+  }
+}
+
+// 主题切换
+function toggleTheme() {
+  const body = document.body;
+  const currentTheme = body.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  
+  body.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  
+  const themeToggle = document.querySelector('.theme-toggle');
+  themeToggle.textContent = newTheme === 'dark' ? '🌞' : '🌓';
+  
+  // 更新主题相关样式
+  if (newTheme === 'dark') {
+    body.style.background = '#1a1a1a';
+  } else {
+    body.style.background = '';
+  }
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+  createBubbles();
+  
+  // 恢复保存的主题
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    document.body.setAttribute('data-theme', savedTheme);
+    document.querySelector('.theme-toggle').textContent = 
+      savedTheme === 'dark' ? '🌞' : '🌓';
+    
+    if (savedTheme === 'dark') {
+      document.body.style.background = '#1a1a1a';
+    }
+  }
+});
+
+// 番茄钟功能
+let timerInterval;
+let timeLeft = 25 * 60;
+let isRunning = false;
+
+function startPomodoro() {
+  if (!isRunning) {
+    isRunning = true;
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+}
+
+function pausePomodoro() {
+  isRunning = false;
+  clearInterval(timerInterval);
+}
+
+function resetPomodoro() {
+  isRunning = false;
+  clearInterval(timerInterval);
+  timeLeft = 25 * 60;
+  updateTimerDisplay();
+}
+
+function setTimer(minutes) {
+  timeLeft = minutes * 60;
+  updateTimerDisplay();
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function updateTimer() {
+  if (timeLeft > 0) {
+    timeLeft--;
+    updateTimerDisplay();
+  } else {
+    clearInterval(timerInterval);
+    isRunning = false;
+    alert('时间到！');
+  }
+}
+
+function updateTimerDisplay() {
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  document.getElementById('pomodoroTimer').textContent = 
+    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// 每日任务功能
+function addTask() {
+  const input = document.getElementById('taskInput');
+  const list = document.getElementById('taskList');
+  
+  if (input.value.trim() === '') return;
+  
+  const task = document.createElement('div');
+  task.className = 'task-item';
+  task.innerHTML = `
+    <input type="checkbox" onchange="updateTaskStats()">
+    <span style="flex: 1; margin-left: 10px;">${input.value}</span>
+    <button onclick="this.parentElement.remove(); updateTaskStats()" class="action-btn">删除</button>
+  `;
+  
+  list.appendChild(task);
+  input.value = '';
+  updateTaskStats();
+}
+
+function updateTaskStats() {
+  const total = document.querySelectorAll('.task-item').length;
+  const completed = document.querySelectorAll('.task-item input:checked').length;
+  
+  document.getElementById('totalTasks').textContent = total;
+  document.getElementById('completedTasks').textContent = completed;
+}
+
+// 随机壁纸功能
+const wallpapers = [
+  'linear-gradient(45deg, #FF9A8B, #FF6B6B)',
+  'linear-gradient(45deg, #A8EDEA, #FED6E3)',
+  'linear-gradient(45deg, #A9C9FF, #FFBBEC)',
+  'linear-gradient(45deg, #74EBD5, #9FACE6)'
+];
+
+function changeWallpaper() {
+  const preview = document.getElementById('wallpaperPreview');
+  const gradients = [
+    'linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)',
+    'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)',
+    'linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)',
+    'linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)'
+  ];
+  
+  const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+  preview.style.background = randomGradient;
+}
+
+// 便签墙功能
+function addNote() {
+  const input = document.getElementById('noteInput');
+  const color = document.getElementById('noteColor').value;
+  const wall = document.getElementById('notesWall');
+  
+  if (input.value.trim() === '') return;
+  
+  const note = document.createElement('div');
+  note.className = 'sticky-note';
+  note.style.background = color;
+  note.innerHTML = `
+    <p>${input.value}</p>
+    <button onclick="this.parentElement.remove()" 
+            style="position: absolute; top: 5px; right: 5px; 
+                   background: none; border: none; cursor: pointer;">
+      ×
+    </button>
+  `;
+  
+  wall.appendChild(note);
+  input.value = '';
+}
+
+// 倒数日功能
+function addEvent() {
+  const name = document.getElementById('eventName');
+  const date = document.getElementById('eventDate');
+  const list = document.getElementById('eventsList');
+  
+  if (name.value.trim() === '' || !date.value) return;
+  
+  const event = document.createElement('div');
+  event.className = 'event-item';
+  
+  const daysLeft = Math.ceil((new Date(date.value) - new Date()) / (1000 * 60 * 60 * 24));
+  
+  event.innerHTML = `
+    <span>${name.value}</span>
+    <span>还有 ${daysLeft} 天</span>
+    <button onclick="this.parentElement.remove()" class="action-btn">删除</button>
+  `;
+  
+  list.appendChild(event);
+  name.value = '';
+  date.value = '';
+}
+
+// 心情日记功能
+let selectedMoodEmoji = '';
+
+function selectDiaryMood(emoji) {
+  selectedMoodEmoji = emoji;
+  document.querySelectorAll('.mood-emoji').forEach(btn => {
+    btn.style.transform = btn.textContent === emoji ? 'scale(1.2)' : 'scale(1)';
+  });
+}
+
+function saveDiary() {
+  const input = document.getElementById('diaryInput');
+  const list = document.getElementById('diaryList');
+  
+  if (input.value.trim() === '' || !selectedMoodEmoji) return;
+  
+  const diary = document.createElement('div');
+  diary.className = 'diary-item';
+  diary.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 1.2em;">${selectedMoodEmoji}</span>
+      <span>${new Date().toLocaleDateString()}</span>
+    </div>
+    <p>${input.value}</p>
+  `;
+  
+  list.insertBefore(diary, list.firstChild);
+  input.value = '';
+  selectedMoodEmoji = '';
+  document.querySelectorAll('.mood-emoji').forEach(btn => btn.style.transform = 'scale(1)');
+}
+
+// 习惯打卡功能
+function addHabit() {
+  const input = document.getElementById('habitInput');
+  const list = document.getElementById('habitsList');
+  
+  if (input.value.trim() === '') return;
+  
+  const habit = document.createElement('div');
+  habit.className = 'habit-item';
+  habit.innerHTML = `
+    <span>${input.value}</span>
+    <div>
+      <button onclick="toggleHabit(this)" class="action-btn">打卡</button>
+      <button onclick="this.parentElement.parentElement.remove()" class="action-btn">删除</button>
+    </div>
+  `;
+  
+  list.appendChild(habit);
+  input.value = '';
+  updateHabitCalendar();
+}
+
+function toggleHabit(btn) {
+  const today = new Date().toLocaleDateString();
+  const habitName = btn.parentElement.parentElement.querySelector('span').textContent;
+  
+  let habits = JSON.parse(localStorage.getItem('habits') || '{}');
+  if (!habits[habitName]) habits[habitName] = [];
+  
+  const index = habits[habitName].indexOf(today);
+  if (index === -1) {
+    habits[habitName].push(today);
+    btn.style.background = '#4CAF50';
+  } else {
+    habits[habitName].splice(index, 1);
+    btn.style.background = '';
+  }
+  
+  localStorage.setItem('habits', JSON.stringify(habits));
+  updateHabitCalendar();
+}
+
+function updateHabitCalendar() {
+  const calendar = document.getElementById('habitCalendar');
+  calendar.innerHTML = '';
+  
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  
+  for (let i = 1; i <= lastDay.getDate(); i++) {
+    const day = document.createElement('div');
+    day.className = 'calendar-day';
+    day.textContent = i;
+    
+    if (i === today.getDate()) {
+      day.style.border = '2px solid #2196F3';
+    }
+    
+    calendar.appendChild(day);
+  }
+}
+
+// 音乐电台功能
+const channels = [
+  { name: '轻音乐', songs: ['轻音乐1', '轻音乐2', '轻音乐3'] },
+  { name: '流行', songs: ['流行1', '流行2', '流行3'] },
+  { name: '古典', songs: ['古典1', '古典2', '古典3'] },
+  { name: '爵士', songs: ['爵士1', '爵士2', '爵士3'] }
+];
+
+let currentChannel = 0;
+let currentSong = 0;
+let radioIsPlaying = false;
+
+function toggleRadio() {
+  radioIsPlaying = !radioIsPlaying;
+  const btn = document.getElementById('radioPlayBtn');
+  btn.textContent = radioIsPlaying ? '⏸️' : '▶️';
+  
+  updateRadioInfo();
+}
+
+function previousChannel() {
+  currentChannel = (currentChannel - 1 + channels.length) % channels.length;
+  currentSong = 0;
+  updateRadioInfo();
+}
+
+function nextChannel() {
+  currentChannel = (currentChannel + 1) % channels.length;
+  currentSong = 0;
+  updateRadioInfo();
+}
+
+function selectChannel(index) {
+  currentChannel = index;
+  currentSong = 0;
+  updateRadioInfo();
+  
+  document.querySelectorAll('.channel-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === index);
+  });
+}
+
+function updateRadioInfo() {
+  const channel = channels[currentChannel];
+  document.getElementById('radioTitle').textContent = channel.name;
+  document.getElementById('radioArtist').textContent = 
+    radioIsPlaying ? `正在播放: ${channel.songs[currentSong]}` : '当前暂停';
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+  changeWallpaper();
+  updateHabitCalendar();
+  updateRadioInfo();
+});
+
+// 音乐播放控制
+function togglePlayPause() {
+  const audio = document.getElementById('bgMusic');
+  const musicBtn = document.querySelector('.music-btn');
+  
+  try {
+    if (audio.paused) {
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          musicBtn.innerHTML = '<span class="music-icon">🎵</span><span class="music-text">音乐开</span>';
+          musicBtn.setAttribute('title', '点击暂停');
+        }).catch(error => {
+          console.error('播放失败:', error);
+          showPlayError();
+        });
+      }
+    } else {
+      audio.pause();
+      musicBtn.innerHTML = '<span class="music-icon">🎵</span><span class="music-text">音乐关</span>';
+      musicBtn.setAttribute('title', '点击播放');
+    }
+  } catch (error) {
+    console.error('音频控制错误:', error);
+    showPlayError();
+  }
+}
+
+// 初始化音乐状态
+document.addEventListener('DOMContentLoaded', function() {
+  const audio = document.getElementById('bgMusic');
+  const musicBtn = document.querySelector('.music-btn');
+  
+  // 检查音频是否可以播放
+  audio.addEventListener('canplaythrough', () => {
+    musicBtn.style.display = 'flex';
+  });
+  
+  // 音频加载失败处理
+  audio.addEventListener('error', () => {
+    musicBtn.style.display = 'none';
+    console.error('音频加载失败');
+  });
+  
+  musicBtn.setAttribute('title', '点击播放');
+  musicBtn.innerHTML = '<span class="music-icon">🎵</span><span class="music-text">音乐关</span>';
+});
+
+// 显示播放错误信息
+function showPlayError() {
+  alert('播放音频时出错，请检查网络连接或尝试重新加载页面。');
+}
+ </script>
+</body>
+</html>
