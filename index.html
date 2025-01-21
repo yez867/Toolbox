@@ -1365,53 +1365,121 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // 添加用户消息
-            const userMsg = document.createElement('div');
-            userMsg.className = 'ai-message user';
-            userMsg.textContent = text;
-            messages.appendChild(userMsg);
+            addMessage(text, true);
             
             // 清空输入框
             input.value = '';
             
-            // 自动滚动到底部
-            messages.scrollTop = messages.scrollHeight;
+            // 显示AI正在输入的动画
+            showTypingIndicator();
             
-            // 模拟AI回复
+            // 延迟显示AI回复，模拟思考时间
             setTimeout(() => {
-                const aiMsg = document.createElement('div');
-                aiMsg.className = 'ai-message bot';
-                aiMsg.textContent = getAiResponse(text);
-                messages.appendChild(aiMsg);
-                messages.scrollTop = messages.scrollHeight;
-            }, 500);
+                hideTypingIndicator();
+                const response = getResponse(text);
+                addMessage(response);
+            }, 1000);
         }
+    }
+
+    function addMessage(content, isUser = false) {
+        const messagesDiv = document.getElementById('aiChatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `ai-message ${isUser ? 'user' : 'bot'}`;
+        
+        // 添加头像和内容
+        messageDiv.innerHTML = `
+            <div class="avatar">${isUser ? '你' : 'AI'}</div>
+            <div class="message-content">
+                ${formatMessageContent(content)}
+            </div>
+        `;
+        
+        // 添加消息并滚动到底部
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        
+        // 如果是AI消息，添加打字动画效果
+        if (!isUser) {
+            const contentDiv = messageDiv.querySelector('.message-content');
+            contentDiv.style.opacity = '0';
+            setTimeout(() => {
+                contentDiv.style.opacity = '1';
+                contentDiv.classList.add('typing-animation');
+            }, 100);
+        }
+    }
+
+    function formatMessageContent(content) {
+        // 处理代码块
+        if (content.includes('```')) {
+            const parts = content.split('```');
+            return parts.map((part, index) => {
+                if (index % 2 === 0) {
+                    return part;
+                } else {
+                    return `<pre><code>${part}</code></pre>`;
+                }
+            }).join('');
+        }
+        
+        // 处理普通文本
+        return content.replace(/\n/g, '<br>');
+    }
+
+    function showTypingIndicator() {
+        const indicator = document.createElement('div');
+        indicator.className = 'typing-indicator';
+        indicator.innerHTML = `
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        `;
+        document.getElementById('aiChatMessages').appendChild(indicator);
+    }
+
+    function hideTypingIndicator() {
+        const indicator = document.querySelector('.typing-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+
+    // 获取AI响应
+    function getResponse(input) {
+        const lowercaseInput = input.toLowerCase();
+        
+        // 基础问候语匹配
+        if (lowercaseInput.includes('你好') || lowercaseInput.includes('hi') || lowercaseInput.includes('hello')) {
+            return '你好！我是AI助手，很高兴为你服务。你可以问我任何问题。';
+        }
+        
+        // 项目相关问题匹配
+        if (lowercaseInput.includes('项目') || lowercaseInput.includes('功能') || lowercaseInput.includes('介绍')) {
+            return '这是一个基于人工智能的智能对话系统，旨在为用户提供便捷、友好的对话体验。我可以回答问题、提供建议，并进行日常交流。';
+        }
+        
+        // 生活问题匹配
+        if (lowercaseInput.includes('建议') || lowercaseInput.includes('怎么办') || lowercaseInput.includes('如何')) {
+            return '我很乐意为你提供建议。不过在给出具体建议之前，能请你详细说明一下具体情况吗？这样我可以给出更有针对性的回答。';
+        }
+        
+        // 默认回复
+        return '抱歉，我可能没有完全理解你的问题。你可以换个方式问我，或者查看项目介绍了解我的功能范围。';
     }
 
     // 监听回车键
     document.getElementById('aiChatInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
             sendAiMessage();
         }
     });
 
-    // 获取AI响应
-    function getAiResponse(text) {
-        // 简单的响应逻辑
-        const responses = {
-            '你好': '你好！很高兴见到你。',
-            '再见': '再见！期待下次交谈。',
-            '帮助': '我可以回答你的问题，提供建议和帮助。',
-            'default': '抱歉，我可能没有完全理解你的意思。你能换个方式说明吗？'
-        };
-        
-        const lowercaseText = text.toLowerCase();
-        for (let key in responses) {
-            if (lowercaseText.includes(key)) {
-                return responses[key];
-            }
-        }
-        return responses.default;
-    }
+    // 初始化欢迎消息
+    window.addEventListener('DOMContentLoaded', () => {
+        addMessage('你好！我是AI助手，很高兴为你服务。你可以问我任何问题，我会尽力帮助你。');
+    });
 
     // 添加展开/折叠功能
     function toggleExpand() {
