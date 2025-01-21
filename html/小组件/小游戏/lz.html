@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -68,6 +67,43 @@
     <canvas></canvas>
  
     <script>
+      // 在页面加载开始时显示加载动画
+      if (window.parent && window.parent.showPageLoading) {
+          window.parent.showPageLoading();
+      }
+
+      // 在页面加载完成时隐藏加载动画
+      window.addEventListener('load', function() {
+          if (window.parent && window.parent.hidePageLoading) {
+              window.parent.hidePageLoading();
+          }
+      });
+
+      // 监听脚本加载
+      document.addEventListener('DOMContentLoaded', function() {
+          const scripts = document.getElementsByTagName('script');
+          let loadedScripts = 0;
+          const totalScripts = scripts.length;
+
+          function checkAllScriptsLoaded() {
+              loadedScripts++;
+              if (loadedScripts >= totalScripts) {
+                  if (window.parent && window.parent.hidePageLoading) {
+                      window.parent.hidePageLoading();
+                  }
+              }
+          }
+
+          Array.from(scripts).forEach(script => {
+              if (script.src) {
+                  script.onload = checkAllScriptsLoaded;
+                  script.onerror = checkAllScriptsLoaded;
+              } else {
+                  checkAllScriptsLoaded();
+              }
+          });
+      });
+
       "use strict";
  
       var canvas = document.querySelector("canvas");

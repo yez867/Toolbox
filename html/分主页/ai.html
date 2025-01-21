@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>AI助手</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: Arial, sans-serif;
+				background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+				height: 100vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				padding: 20px;
+			}
+
+			.chat-container {
+				width: 90%;
+				height: 90vh;
+				margin: 20px auto;
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 15px;
+				box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+				overflow: hidden;
+				display: flex;
+				flex-direction: column;
+			}
+
+			.chat-header {
+				background: #4a90e2;
+				color: white;
+				padding: 15px 20px;
+				text-align: center;
+			}
+
+			.chat-header h1 {
+				font-size: 1.5em;
+				margin-bottom: 5px;
+			}
+
+			.chat-header p {
+				font-size: 0.9em;
+				opacity: 0.8;
+			}
+
+			.chat-messages {
+				flex: 1;
+				padding: 20px;
+				overflow-y: auto;
+			}
+
+			.message {
+				margin-bottom: 15px;
+				display: flex;
+				align-items: flex-start;
+				animation: fadeIn 0.3s ease-out;
+			}
+
+			.message.user {
+				flex-direction: row-reverse;
+			}
+
+			.message-content {
+				max-width: 85%;
+				padding: 12px 16px;
+				border-radius: 15px;
+				box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+				word-wrap: break-word;
+				font-size: 16px;
+				line-height: 1.5;
+			}
+
+			.user .message-content {
+				background: #4a90e2;
+				color: white;
+				border-radius: 15px 15px 0 15px;
+			}
+
+			.bot .message-content {
+				background: #f0f2f5;
+				color: #333;
+				border-radius: 15px 15px 15px 0;
+			}
+
+			.avatar {
+				width: 36px;
+				height: 36px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 14px;
+				margin: 0 8px;
+			}
+
+			.user .avatar {
+				background: #4a90e2;
+				color: white;
+			}
+
+			.ai .avatar {
+				background: #f0f2f5;
+				color: #4a90e2;
+			}
+
+			.chat-input {
+				padding: 15px;
+				border-top: 1px solid #eee;
+				display: flex;
+				gap: 10px;
+				background: white;
+			}
+
+			.chat-input input {
+				flex: 1;
+				padding: 12px;
+				border: 1px solid #ddd;
+				border-radius: 25px;
+				outline: none;
+				font-size: 16px;
+			}
+
+			.chat-input button {
+				padding: 12px 24px;
+				background: #4a90e2;
+				color: white;
+				border: none;
+				border-radius: 25px;
+				cursor: pointer;
+				font-size: 16px;
+				transition: background 0.3s;
+			}
+
+			.chat-input button:hover {
+				background: #357abd;
+			}
+
+			/* 移动端适配 */
+			@media screen and (max-width: 768px) {
+				body {
+					padding: 0;
+					margin: 0;
+					background: #2f3136;
+					height: 100vh;
+					overflow: hidden;
+				}
+
+				.chat-container {
+					width: 100%;
+					height: 100vh;
+					margin: 0;
+					border-radius: 0;
+					background: #2f3136;
+					display: flex;
+					flex-direction: column;
+				}
+
+				.chat-header {
+					background: #2f3136;
+					padding: 15px;
+					text-align: center;
+					border-bottom: 1px solid #40444b;
+					position: fixed;
+					top: 0;
+					left: 0;
+					right: 0;
+					z-index: 100;
+				}
+
+				.chat-header h1 {
+					font-size: 18px;
+					margin: 0;
+					color: #fff;
+				}
+
+				.chat-header p {
+					display: none;
+				}
+
+				.chat-messages {
+					flex: 1;
+					padding: 15px;
+					margin-top: 50px;
+					margin-bottom: 60px;
+					background: #2f3136;
+					overflow-y: auto;
+				}
+
+				.message {
+					margin-bottom: 15px;
+				}
+
+				.message-content {
+					max-width: 80%;
+					padding: 10px 15px;
+					font-size: 14px;
+					line-height: 1.4;
+					border-radius: 4px;
+				}
+
+				.user .message-content {
+					background: #5865f2;
+					color: white;
+					border-radius: 4px;
+					margin-left: auto;
+				}
+
+				.ai .message-content {
+					background: #40444b;
+					color: #dcddde;
+					border-radius: 4px;
+				}
+
+				.avatar {
+					display: none;
+				}
+
+				.chat-input {
+					position: fixed;
+					bottom: 0;
+					left: 0;
+					right: 0;
+					padding: 10px;
+					background: #40444b;
+					border-top: 1px solid #2f3136;
+					display: flex;
+					gap: 10px;
+				}
+
+				.chat-input input {
+					flex: 1;
+					padding: 8px 15px;
+					font-size: 14px;
+					background: #40444b;
+					border: 1px solid #202225;
+					border-radius: 20px;
+					color: #dcddde;
+				}
+
+				.chat-input input::placeholder {
+					color: #72767d;
+				}
+
+				.chat-input button {
+					padding: 8px 20px;
+					font-size: 14px;
+					background: #5865f2;
+					color: white;
+					border: none;
+					border-radius: 20px;
+				}
+
+				.return-btn,
+				.intro-btn {
+					display: none;
+				}
+
+				/* 优化滚动条 */
+				.chat-messages::-webkit-scrollbar {
+					width: 4px;
+				}
+
+				.chat-messages::-webkit-scrollbar-track {
+					background: transparent;
+				}
+
+				.chat-messages::-webkit-scrollbar-thumb {
+					background: #202225;
+					border-radius: 2px;
+				}
+			}
+
+			/* 优化滚动条 */
+			.chat-messages::-webkit-scrollbar {
+				width: 6px;
+			}
+
+			.chat-messages::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+
+			.chat-messages::-webkit-scrollbar-thumb {
+				background: #888;
+				border-radius: 3px;
+			}
+
+			.chat-messages::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+
+			/* 错误提示样式优化 */
+			.error-message {
+				background: #ffebee;
+				color: #c62828;
+				padding: 10px;
+				border-radius: 5px;
+				margin: 10px 0;
+				font-size: 14px;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.error-message::before {
+				content: "⚠️";
+			}
+
+			/* 代码块样式优化 */
+			pre {
+				background-color: #f5f5f5;
+				padding: 12px;
+				border-radius: 8px;
+				overflow-x: auto;
+				margin: 10px 0;
+				font-family: 'Courier New', Courier, monospace;
+			}
+
+				code {
+					color: #333;
+					font-size: 14px;
+					line-height: 1.4;
+				}
+
+			/* 动画效果 */
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+					transform: translateY(10px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			/* 返回按钮和介绍按钮优化 */
+			.return-btn,
+			.intro-btn {
+				position: fixed;
+				padding: 8px 16px;
+				border-radius: 20px;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				font-size: 14px;
+				z-index: 100;
+				box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+			}
+
+			.return-btn {
+				top: 15px;
+				left: 15px;
+				background: white;
+				color: #4a90e2;
+				border: none;
+				text-decoration: none;
+			}
+
+			.intro-btn {
+				top: 15px;
+				right: 15px;
+				background: #4a90e2;
+				color: white;
+				border: none;
+			}
+
+			@media screen and (max-width: 768px) {
+				.return-btn,
+				.intro-btn {
+					padding: 6px 12px;
+					font-size: 12px;
+				}
+			}
+
+			.typing-indicator {
+				display: flex;
+				gap: 4px;
+				padding: 8px 12px;
+				background: #f0f2f5;
+				border-radius: 15px;
+				margin-bottom: 15px;
+				width: fit-content;
+			}
+
+			.typing-dot {
+				width: 6px;
+				height: 6px;
+				background: #90a4ae;
+				border-radius: 50%;
+				animation: typingAnimation 1.4s infinite;
+			}
+
+			.typing-dot:nth-child(2) {
+				animation-delay: 0.2s;
+			}
+
+			.typing-dot:nth-child(3) {
+				animation-delay: 0.4s;
+			}
+
+			@keyframes typingAnimation {
+				0%, 60%, 100% {
+					transform: translateY(0);
+				}
+				30% {
+					transform: translateY(-4px);
+				}
+			}
+
+			.return-btn {
+				position: fixed;
+				top: 20px;
+				left: 20px;
+				padding: 10px 20px;
+				background: white;
+				border: none;
+				border-radius: 25px;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+				text-decoration: none;
+				color: #4a90e2;
+			}
+
+			.return-btn:hover {
+				background: #f5f5f5;
+			}
+
+			.intro-btn {
+				position: fixed;
+				top: 20px;
+				right: 20px;
+				padding: 10px 20px;
+				background: #4a90e2;
+				color: white;
+				border: none;
+				border-radius: 25px;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+				text-decoration: none;
+			}
+
+			.intro-btn:hover {
+				background: #357abd;
+			}
+
+			.intro-content {
+				display: none;
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width: 80%;
+				max-width: 600px;
+				background: white;
+				padding: 30px;
+				border-radius: 15px;
+				box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+				z-index: 1000;
+			}
+
+			.intro-content h2 {
+				color: #4a90e2;
+				margin-bottom: 20px;
+			}
+
+			.intro-content p {
+				margin-bottom: 15px;
+				line-height: 1.6;
+			}
+
+			.intro-content ul {
+				margin-bottom: 15px;
+				padding-left: 20px;
+			}
+
+			.intro-content li {
+				margin-bottom: 8px;
+			}
+
+			.close-intro {
+				position: absolute;
+				top: 15px;
+				right: 15px;
+				background: none;
+				border: none;
+				font-size: 20px;
+				cursor: pointer;
+				color: #666;
+			}
+
+			.overlay {
+				display: none;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(0,0,0,0.5);
+				z-index: 999;
+			}
+
+			.message.error {
+				margin: 10px 0;
+				padding: 10px;
+				background-color: #fff3f3;
+				border-radius: 10px;
+				text-align: center;
+			}
+
+			.error-icon {
+				margin-right: 8px;
+			}
+
+			.retry-btn {
+				margin-left: 10px;
+				padding: 4px 12px;
+				background-color: #4a90e2;
+				color: white;
+				border: none;
+				border-radius: 15px;
+				cursor: pointer;
+				font-size: 14px;
+			}
+
+			.retry-btn:hover {
+				background-color: #357abd;
+			}
+
+			pre {
+				background-color: #f5f5f5;
+				padding: 10px;
+				border-radius: 5px;
+				overflow-x: auto;
+				margin: 10px 0;
+			}
+
+			code {
+				font-family: 'Courier New', Courier, monospace;
+				color: #333;
+			}
+
+			/* 移动端适配 */
+			@media screen and (max-width: 768px) {
+				.chat-container {
+					margin: 10px;
+					height: 90vh;
+				}
+
+				.chat-header {
+					padding: 12px;
+					font-size: 18px;
+				}
+
+				.chat-messages {
+					height: calc(90vh - 130px);
+					padding: 15px;
+				}
+
+				.message-content {
+					max-width: 85%;
+					padding: 10px 14px;
+					font-size: 16px;
+				}
+
+				.chat-input {
+					padding: 10px;
+				}
+
+				.chat-input input {
+					padding: 10px;
+					font-size: 16px;
+				}
+
+				.chat-input button {
+					padding: 10px 20px;
+					font-size: 16px;
+				}
+			}
+
+			/* 添加动画效果 */
+			.message {
+				animation: fadeIn 0.3s ease-out;
+			}
+
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+					transform: translateY(10px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			/* 优化滚动条样式 */
+			.chat-messages::-webkit-scrollbar {
+				width: 6px;
+			}
+
+			.chat-messages::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+
+			.chat-messages::-webkit-scrollbar-thumb {
+				background: #888;
+				border-radius: 3px;
+			}
+
+			.chat-messages::-webkit-scrollbar-thumb:hover {
+				background: #555;
+			}
+
+			/* 添加打字动画效果 */
+			.typing-indicator {
+				display: flex;
+				gap: 4px;
+				padding: 8px 12px;
+				background: #f0f2f5;
+				border-radius: 15px;
+				margin-bottom: 15px;
+				width: fit-content;
+			}
+
+			.typing-dot {
+				width: 6px;
+				height: 6px;
+				background: #90a4ae;
+				border-radius: 50%;
+				animation: typingAnimation 1.4s infinite;
+			}
+
+			.typing-dot:nth-child(2) {
+				animation-delay: 0.2s;
+			}
+
+			.typing-dot:nth-child(3) {
+				animation-delay: 0.4s;
+			}
+
+			@keyframes typingAnimation {
+				0%, 60%, 100% {
+					transform: translateY(0);
+				}
+				30% {
+					transform: translateY(-4px);
+				}
+			}
+
+			/* 错误提示样式 */
+			.error-message {
+				background: #ffebee;
+				color: #c62828;
+				padding: 10px;
+				border-radius: 5px;
+				margin: 10px 0;
+				font-size: 14px;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.error-message::before {
+				content: "⚠️";
+			}
+
+			/* 主题切换按钮样式 */
+			.theme-toggle {
+				position: fixed;
+				top: 20px;
+				right: 20px;
+				padding: 10px 20px;
+				background: #5865f2;
+				color: white;
+				border: none;
+				border-radius: 20px;
+				cursor: pointer;
+				z-index: 1000;
+			}
+
+			/* 深色主题样式 */
+			body.dark-theme {
+				background: #2f3136;
+				color: #fff;
+			}
+
+			.dark-theme .chat-container {
+				background: #36393f;
+			}
+
+			.dark-theme .chat-header {
+				background: #202225;
+			}
+
+			.dark-theme .message-content {
+				background: #40444b;
+				color: #dcddde;
+			}
+
+			.dark-theme .chat-input {
+				background: #40444b;
+				border-top: 1px solid #202225;
+			}
+
+			.dark-theme .chat-input input {
+				background: #40444b;
+				color: #dcddde;
+				border: 1px solid #202225;
+			}
+
+			/* 移动端样式优化 */
+			@media screen and (max-width: 768px) {
+				body {
+					font-size: 48px; /* 3倍基础字体大小 */
+				}
+
+				.chat-header h1 {
+					font-size: 54px;
+				}
+
+				.message-content {
+					font-size: 48px;
+					line-height: 1.5;
+					padding: 20px;
+				}
+
+				.chat-input input {
+					font-size: 48px;
+					padding: 15px 20px;
+				}
+
+				.chat-input button {
+					font-size: 48px;
+					padding: 15px 30px;
+				}
+
+				.theme-toggle {
+					font-size: 42px;
+					padding: 15px 30px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<a href="../../index.html" class="return-btn">
+			<span>←</span>
+			返回主页
+		</a>
+
+		<button class="intro-btn" onclick="showIntro()">
+			<span>ℹ️</span>
+			项目介绍
+		</button>
+
+		<div class="overlay" id="overlay" onclick="hideIntro()"></div>
+		<div class="intro-content" id="introContent">
+			<button class="close-intro" onclick="hideIntro()">×</button>
+			<h2>AI对话助手项目介绍</h2>
+
+		<!-- 添加主题切换按钮 -->
+		<button class="theme-toggle" onclick="toggleTheme()">
+			切换主题
+		</button>
+
+			<p>欢迎使用AI对话助手！这是一个简单但功能丰富的聊天机器人，能够与您进行多种话题的交流。</p>
+			
+			<h3>主要功能：</h3>
+			<ul>
+				<li>基础对话：支持日常问候、闲聊等基本交流</li>
+				<li>知识咨询：可以解答学习、工作、生活等多个领域的问题</li>
+				<li>情感支持：提供情感交流和心理支持</li>
+				<li>生活建议：提供各类生活相关的建议和指导</li>
+			</ul>
+
+			<h3>使用方法：</h3>
+			<ul>
+				<li>直接在输入框中输入您想说的话</li>
+				<li>点击发送按钮或按回车键发送消息</li>
+				<li>AI助手会根据您的输入给出相应回复</li>
+			</ul>
+
+			<h3>特色功能：</h3>
+			<ul>
+				<li>智能匹配：根据关键词智能匹配最相关的回答</li>
+				<li>实时响应：快速的对话响应速度</li>
+				<li>丰富话题：覆盖300多个生活话题的对话内容</li>
+				<li>人性化交互：模拟真实对话，提供友好的交互体验</li>
+			</ul>
+		</div>
+
+		<div class="chat-container">
+			<div class="chat-header">
+				<h1>AI对话助手</h1>
+				<p>让我们开始愉快的对话吧！</p>
+			</div>
+
+			<div class="chat-messages" id="chatMessages">
+				<div class="message ai">
+					<div class="avatar">AI</div>
+					<div class="message-content">
+						你好！我是AI助手，很高兴为你服务。请问有什么我可以帮你的吗？
+					</div>
+				</div>
+			</div>
+
+			<div class="typing-indicator" id="typingIndicator">
+				<span></span>
+				<span></span>
+				<span></span>
+			</div>
+
+			<div class="chat-input">
+				<input type="text" id="userInput" placeholder="输入你的问题..." onkeypress="handleKeyPress(event)">
+				<button onclick="sendMessage()">发送</button>
+			</div>
+		</div>
+
+		<script>
+			const responses = {
+				// 基础问候
+				"你好": "你好！很高兴见到你。",
+				"早上好": "早上好！祝你今天心情愉快！",
+				"下午好": "下午好！希望你今天过得开心！",
+				"晚上好": "晚上好！度过愉快的夜晚吧！",
+				"再见": "再见！期待下次与你聊天！",
+				"拜拜": "拜拜！祝你有美好的一天！",
+
+				// 身份相关
+				"你是谁": "我是一个AI助手，可以和你聊天解闷。",
+				"你叫什么": "我是AI助手，你可以叫我小AI。",
+				"你的名字": "我叫小AI，很高兴认识你！",
+				"你是机器人吗": "是的，我是一个AI助手，但我很乐意和你交朋友！",
+				"你是人工智能": "没错，我是人工智能助手，随时准备为你服务。",
+				"你多大了": "作为AI，我没有实际年龄，但我一直保持着年轻的心态！",
+				"你的性别": "我是AI助手，没有具体的性别，你可以按照你喜欢的方式称呼我。",
+				
+				// 情感交流
+				"我很开心": "太好了！分享快乐会让快乐加倍哦！",
+				"我很难过": "别难过，我在这里陪着你。要不要说说发生了什么？",
+				"我很生气": "深呼吸，让自己冷静下来。愤怒无法解决问题，我们一起想办法。",
+				"我很累": "要适当休息哦，劳逸结合才能更好地前进。",
+				"我压力好大": "压力是动力的来源，但也要学会适时放松。要不要听个笑话？",
+				"我好孤独": "别担心，我随时都在这里陪你聊天。",
+				"我失恋了": "时间会治愈一切，保持希望，更好的人正在来的路上。",
+				"我很无聊": "让我们来玩个游戏吧！或者我可以讲个有趣的故事。",
+
+				// 生活话题
+				"天气": "天气确实会影响心情，但保持好心情才是最重要的！",
+				"吃饭了吗": "作为AI我不需要吃饭，但希望你能按时吃饭，保持健康！",
+				"睡不着": "要不要数数羊？或者听点轻音乐可能会帮助入睡。",
+				"减肥": "健康的减肥需要合理的饮食和适量运动，慢慢来会有效果的！",
+				"运动": "运动是保持健康的好方法，找到适合自己的运动很重要。",
+				"学习": "学习是终身的事业，我也在不断学习新知识。",
+				"工作": "工作虽然辛苦，但努力总会有回报的。",
+				"旅游": "旅行能开阔视野，累了的时候出去走走是个不错的选择。",
+				
+				// 兴趣爱好
+				"你的爱好": "我喜欢和人聊天，学习新知识，最重要的是能帮助到他人。",
+				"看电影": "电影是个不错的消遣方式，你喜欢什么类型的电影呢？",
+				"听音乐": "音乐能陶冶情操，你最喜欢什么风格的音乐？",
+				"打游戏": "游戏很有趣，但要注意适度，劳逸结合最重要。",
+				"看书": "读书是获取知识的好方法，有什么好书推荐吗？",
+				"画画": "艺术创作能表达内心，画画是个不错的爱好。",
+				"运动": "运动既能强身健体，又能释放压力，很棒的选择！",
+				
+				// 学习工作
+				"学习方法": "制定计划、保持专注、适时休息是高效学习的好方法。",
+				"职业规划": "选择适合自己的道路，并为之努力是很重要的。",
+				"工作压力": "适当的压力能促进成长，但也要学会调节。",
+				"考试": "保持良好的心态，充分的准备，相信自己一定能行！",
+				"找工作": "找到适合自己的工作很重要，要相信机会总会来的。",
+				"创业": "创业需要勇气和准备，做好充分的计划很重要。",
+				
+				// 情感建议
+				"谈恋爱": "真诚对待感情，互相理解和尊重是感情长久的基础。",
+				"相亲": "保持开放的心态，但也要坚持自己的原则。",
+				"分手": "分手不是终点，而是新生活的开始。",
+				"婚姻": "婚姻需要两个人共同经营，互相理解和包容很重要。",
+				"友情": "真诚的友情很珍贵，要好好珍惜。",
+				
+				// 生活建议
+				"理财": "合理规划支出，适当储蓄和投资都很重要。",
+				"买房": "买房是人生大事，要充分考虑自己的实际情况。",
+				"装修": "装修要注意实用性和舒适度的平衡。",
+				"搬家": "换个环境可能会带来新的机遇，祝你好运！",
+				"养宠物": "养宠物能带来很多快乐，但也要承担起责任。",
+				
+				// 心理健康
+				"焦虑": "试试深呼吸，或者找人倾诉，这些都能帮助缓解焦虑。",
+				"抑郁": "你并不孤单，建议寻求专业的心理咨询帮助。",
+				"失眠": "保持规律的作息，睡前避免使用电子产品可能会有帮助。",
+				"压力": "适当的压力是动力，但要学会调节和释放。",
+				
+				// 趣味互动
+				"讲个笑话": "为什么电脑会生病？因为它总是要病毒！",
+				"讲个故事": "从前有座山，山里有座庙，庙里有个老和尚在讲故事...",
+				"猜谜语": "什么东西越洗越脏？洗脚水！",
+				"脑筋急转弯": "什么东西没人爱吃，但大家都说很好吃？苦头！",
+				
+				// 节日问候
+				"新年": "新年快乐！祝你在新的一年里心想事成！",
+				"春节": "春节快乐！祝你阖家欢乐，万事如意！",
+				"中秋": "中秋快乐！愿你和家人团圆美满！",
+				"圣诞": "圣诞快乐！愿你收获满满的祝福和惊喜！",
+				
+				// 时间管理
+				"早起": "早起能让一天过得更充实，但要保证充足的睡眠。",
+				"效率": "合理规划时间，专注当下是提高效率的好方法。",
+				"拖延": "把任务分解成小步骤，一步步完成可以克服拖延。",
+				
+				// 健康建议
+				"失眠": "保持规律作息，睡前放松心情可能会有帮助。",
+				"头疼": "可能是疲劳或压力导致，注意休息，必要时就医。",
+				"感冒": "多喝热水，注意保暖，好好休息。",
+				"营养": "均衡饮食，适量运动是保持健康的关键。",
+				
+				// 生活技能
+				"做饭": "做饭是一项实用的技能，从简单的开始学习吧！",
+				"收纳": "断舍离是收纳的第一步，让生活更加整洁。",
+				"理财": "量入为出，适当储蓄和投资都很重要。",
+				
+				// 职场技能
+				"演讲": "充分准备，自信表达是成功演讲的关键。",
+				"沟通": "真诚倾听，清晰表达能促进有效沟通。",
+				"领导力": "以身作则，关心他人是好领导的品质。",
+				
+				// 兴趣发展
+				"摄影": "用心观察生活，记录美好瞬间。",
+				"写作": "坚持练习，表达自己的想法和感受。",
+				"音乐": "音乐能陶冶情操，找到自己喜欢的风格。",
+				
+				// 生活态度
+				"积极": "保持积极向上的心态，相信美好就在前方！",
+				"乐观": "乐观面对生活，困难终将过去。",
+				"坚持": "坚持自己的梦想，一步一步都在靠近目标。",
+				
+				// 人际关系
+				"社交": "真诚待人，保持自我，社交会变得自然。",
+				"人际关系": "互相理解和尊重是维系关系的关键。",
+				"沟通技巧": "倾听和共情能促进有效沟通。",
+
+				// 默认回复
+				"默认": "抱歉，我可能没有完全理解你的意思。你能换个方式说明吗？",
+
+				// 学科知识
+				"数学": "数学是科学的基础，需要多练习和理解。",
+				"物理": "物理帮助我们理解世界运行的规律，很有趣的学科。",
+				"化学": "化学让我们了解物质的组成和变化，要注意实验安全。",
+				"生物": "生物教我们认识生命的奥秘，与我们的生活密切相关。",
+				"历史": "历史让我们以史为鉴，学习前人的经验教训。",
+				"地理": "地理帮助我们了解世界，增长见识。",
+				"政治": "政治需要理性思考和独立判断能力。",
+				"英语": "英语是国际交流的重要工具，坚持学习很重要。",
+
+				// 饮食健康
+				"早餐": "早餐是一天中最重要的一餐，要营养均衡。",
+				"午餐": "午餐要适量，太饱容易影响下午的工作效率。",
+				"晚餐": "晚餐建议清淡一些，不要太晚吃。",
+				"零食": "零食要适量，选择健康的零食更好。",
+				"水果": "每天吃水果可以补充维生素和膳食纤维。",
+				"蔬菜": "多吃蔬菜有助于身体健康，要注意营养均衡。",
+				"饮水": "每天要喝足够的水，保持身体水分。",
+				"咖啡": "咖啡提神醒脑，但不要过量饮用。",
+
+				// 运动健身
+				"跑步": "跑步是很好的有氧运动，要循序渐进。",
+				"游泳": "游泳是全身运动，对身体很有益处。",
+				"瑜伽": "瑜伽可以帮助身心放松，增强柔韧性。",
+				"健身": "科学健身可以提高身体素质，注意循序渐进。",
+				"篮球": "篮球是很好的团队运动，可以锻炼协调能力。",
+				"足球": "足球需要团队配合，很能锻炼人。",
+				"羽毛球": "羽毛球适合各年龄段人群，要注意技巧。",
+				"太极": "太极养身养心，适合慢慢修炼。",
+
+				// 情绪管理
+				"快乐": "保持快乐的心情，生活会更美好。",
+				"悲伤": "悲伤是正常的情绪，允许自己难过，但不要沉浸太久。",
+				"愤怒": "感到愤怒时，深呼吸可以帮助平静下来。",
+				"紧张": "适度的紧张是正常的，要学会自我调节。",
+				"烦躁": "烦躁时不妨换个环境，听听音乐。",
+				"兴奋": "保持适度的兴奋有助于提高效率。",
+				"恐惧": "面对恐惧，勇敢面对才能克服。",
+				"担心": "适度的担心是好事，过度担心反而不好。",
+
+				// 职场发展
+				"面试": "面试前要充分准备，展现真实的自己。",
+				"升职": "升职需要实力和机遇的结合，要做好准备。",
+				"加薪": "加薪要有足够的能力支撑，要创造价值。",
+				"跳槽": "跳槽要慎重考虑，权衡利弊。",
+				"创新": "创新需要勇气和智慧的结合。",
+				"团队": "好的团队合作是成功的关键。",
+				"竞争": "良性竞争可以促进进步。",
+				"合作": "真诚合作可以实现共赢。",
+
+				// 生活琐事
+				"做饭": "做饭是一门艺术，从简单的开始学习。",
+				"打扫": "整洁的环境让心情也变好。",
+				"购物": "理性消费，不要冲动购物。",
+				"存钱": "存钱是个好习惯，要有规划。",
+				"装修": "装修要注意实用性和美观性的平衡。",
+				"搬家": "搬家是个体力活，要提前规划好。",
+				"维修": "简单的维修可以自己尝试，复杂的要找专业人士。",
+				"整理": "经常整理可以让生活更有条理。",
+
+				// 兴趣培养
+				"绘画": "绘画可以表达内心，放松心情。",
+				"弹琴": "弹琴需要持续练习，慢慢就会进步。",
+				"摄影": "摄影可以记录美好，培养审美。",
+				"手工": "手工可以锻炼耐心，很有成就感。",
+				"园艺": "种花种草可以亲近自然，很有趣。",
+				"烘焙": "烘焙既能吃又能玩，很有意思。",
+				"跳舞": "跳舞能锻炼身体，愉悦心情。",
+				"唱歌": "唱歌是表达情感的好方式。",
+
+				// 科技数码
+				"手机": "手机要适度使用，注意保护眼睛。",
+				"电脑": "电脑是工作学习的好帮手，要注意维护。",
+				"平板": "平板既方便又实用，要合理使用。",
+				"相机": "相机能记录美好瞬间，值得学习。",
+				"智能家居": "智能家居能提高生活品质，但要注意隐私安全。",
+				"游戏机": "游戏要适度，注意劳逸结合。",
+				"耳机": "听音乐要注意音量，保护听力。",
+				"充电": "电子设备要注意正确充电方式。",
+
+				// 旅行建议
+				"国内游": "国内有很多好玩的地方，要提前规划。",
+				"出国游": "出国旅行要注意安全，办好签证。",
+				"自驾游": "自驾游自由度高，要注意行车安全。",
+				"徒步": "徒步要量力而行，带好装备。",
+				"露营": "露营要选择安全的地方，带齐装备。",
+				"摄影游": "摄影游要选择适合的季节和地点。",
+				"美食游": "美食游要注意卫生，不要贪吃。",
+				"购物游": "购物游要理性消费，注意价格。",
+
+				// 家庭关系
+				"亲子": "陪伴是最好的教育，要多和孩子交流。",
+				"夫妻": "夫妻要互相理解，共同成长。",
+				"父母": "要常和父母联系，尽孝要及时。",
+				"兄弟姐妹": "兄弟姐妹要互帮互助，和睦相处。",
+				"婆媳": "婆媳关系要互相尊重，互相理解。",
+				"邻里": "邻里关系要和谐，互帮互助。",
+				"亲戚": "亲戚之间要互相关心，但要有适当距离。",
+				"家庭": "家和万事兴，要珍惜家人。",
+
+				// 宠物饲养
+				"狗狗": "养狗要负责任，要有耐心教育。",
+				"猫咪": "猫咪性格独立，要尊重它们的习性。",
+				"鱼": "养鱼要注意水质，定期换水。",
+				"鸟": "养鸟要注意卫生，提供适宜环境。",
+				"仓鼠": "仓鼠要注意清洁，提供玩具。",
+				"兔子": "兔子性格温顺，要细心照顾。",
+				"龟": "乌龟寿命长，要有长期饲养的打算。",
+				"宠物": "养宠物要负责任，给它们好的生活。",
+
+				// 植物养护
+				"花卉": "养花要根据不同花卉特性来护理。",
+				"多肉": "多肉植物好养活，但要控制浇水。",
+				"绿植": "绿植能净化空气，要经常打理。",
+				"盆栽": "盆栽要选择合适的土壤和肥料。",
+				"果树": "果树要注意修剪和施肥。",
+				"草坪": "草坪要定期修剪，保持整齐。",
+				"蔬菜": "种菜要注意季节，选择适合的品种。",
+				"园艺": "园艺能陶冶情操，要有耐心。",
+
+				// 理财投资
+				"基金": "基金投资要分散风险，长期持有。",
+				"股票": "股票风险较大，要谨慎投资。",
+				"储蓄": "储蓄是稳健的理财方式。",
+				"保险": "保险是风险管理的工具，要合理规划。",
+				"债券": "债券风险相对较小，收益也较稳定。",
+				"黄金": "黄金可以作为保值手段。",
+				"房产": "房产投资要考虑长期收益。",
+				"投资": "投资要量力而行，不要借钱投资。",
+
+				// 美食烹饪
+				"中餐": "中餐博大精深，要掌握火候和调味。",
+				"西餐": "西餐讲究摆盘和工序，值得学习。",
+				"日料": "日料注重食材新鲜度和切工技巧。",
+				"韩餐": "韩餐口味偏重，要注意调味适中。",
+				"烘焙": "烘焙需要精确的配比和温度控制。",
+				"火锅": "火锅是一种社交美食，要注意食材搭配。",
+				"小吃": "小吃制作要讲究特色和口感。",
+				"素食": "素食也可以做得很美味，关键是调味。",
+
+				// 时尚美容
+				"护肤": "护肤要根据肤质选择合适的产品。",
+				"化妆": "化妆要突出个人特色，不要太浓重。",
+				"美发": "发型要适合脸型，定期护理很重要。",
+				"穿搭": "穿搭要符合场合，展现个人风格。",
+				"配饰": "配饰能为造型加分，但不要过多。",
+				"美甲": "美甲可以展现个性，但要注意卫生。",
+				"香水": "香水要根据场合选择合适的味道。",
+				"保养": "保养要从内而外，作息规律很重要。",
+
+				// 汽车相关
+				"买车": "买车要考虑预算和实际需求。",
+				"保养": "定期保养可以延长车辆寿命。",
+				"驾驶": "安全驾驶最重要，要遵守交规。",
+				"修车": "简单故障可自行处理，复杂的要找专业人士。",
+				"油耗": "节油驾驶可以省钱环保。",
+				"保险": "车险要根据需求合理配置。",
+				"违章": "要遵守交规，避免违章。",
+				"停车": "停车要注意周围环境，不要影响他人。",
+
+				// 居家装修
+				"风格": "装修风格要统一，符合个人喜好。",
+				"预算": "装修预算要合理分配，留有余地。",
+				"材料": "装修材料要环保安全，质量可靠。",
+				"施工": "装修施工要找可靠的团队，注意监工。",
+				"设计": "装修设计要实用美观，符合生活需求。",
+				"家具": "家具要配套协调，注意实用性。",
+				"收纳": "收纳设计要合理，充分利用空间。",
+				"采光": "采光要充足，可以让家更温馨。",
+
+				// 育儿经验
+				"胎教": "胎教要用柔和的方式，保持好心情。",
+				"哺乳": "母乳喂养要注意营养均衡。",
+				"辅食": "添加辅食要循序渐进，注意观察。",
+				"早教": "早教要根据孩子兴趣，不要强迫。",
+				"教育": "教育要因材施教，培养兴趣。",
+				"营养": "儿童营养要均衡，不要偏食。",
+				"玩具": "玩具要适合年龄，注意安全。",
+				"习惯": "好习惯要从小培养，父母以身作则。",
+
+				// 宠物护理
+				"喂食": "宠物喂食要定时定量，注意营养。",
+				"洗澡": "给宠物洗澡要用专用产品，注意水温。",
+				"美容": "宠物美容要找专业人士，不要伤害到它们。",
+				"疫苗": "宠物要按时接种疫苗，预防疾病。",
+				"训练": "宠物训练要有耐心，多鼓励表扬。",
+				"生病": "宠物生病要及时就医，不要拖延。",
+				"绝育": "绝育可以预防疾病，但要慎重决定。",
+				"寄养": "寄养要选择靠谱的机构，提前考察。",
+
+				// 运动健康
+				"热身": "运动前要充分热身，预防受伤。",
+				"拉伸": "拉伸要缓慢，不要用力过猛。",
+				"器械": "健身器械要正确使用，注意安全。",
+				"饮食": "运动饮食要注意营养补充。",
+				"恢复": "运动后要注意休息恢复。",
+				"受伤": "运动受伤要及时处理，避免加重。",
+				"计划": "运动计划要循序渐进，不要急于求成。",
+				"强度": "运动强度要适中，不要过度。",
+
+				// 职场礼仪
+				"着装": "职场着装要得体大方，符合场合。",
+				"称呼": "职场称呼要恰当，表示尊重。",
+				"邮件": "职场邮件要简明扼要，措辞得体。",
+				"会议": "开会要准时，认真听取他人意见。",
+				"汇报": "工作汇报要条理清晰，重点突出。",
+				"应酬": "职场应酬要适度，注意分寸。",
+				"礼物": "职场送礼要得体，不要太贵重。",
+				"人情": "职场人情世故要懂得分寸。",
+
+				// 心理调节
+				"压力": "压力要学会释放，找到合适的方式。",
+				"情绪": "情绪要学会控制，不要影响他人。",
+				"失眠": "失眠要找到原因，调整作息。",
+				"焦虑": "焦虑时要学会放松，可以找人倾诉。",
+				"抑郁": "抑郁要及时就医，接受专业帮助。",
+				"自信": "要学会建立自信，接纳自己。",
+				"沟通": "有效沟通可以解决很多问题。",
+				"倾听": "学会倾听可以增进理解。",
+
+				// 学习方法
+				"记忆": "记忆要找到适合自己的方法。",
+				"复习": "复习要及时，巩固知识点。",
+				"笔记": "做笔记要抓住重点，条理清晰。",
+				"考试": "考试要保持良好心态，合理安排时间。",
+				"专注": "学习要保持专注，避免分心。",
+				"思维": "要培养独立思考的能力。",
+				"规划": "学习要有计划，循序渐进。",
+				"方法": "找到适合自己的学习方法很重要。",
+
+				// 旅行攻略
+				"攻略": "旅行前要做好攻略，合理安排行程。",
+				"机票": "机票要提前预订，比较价格。",
+				"酒店": "住宿要考虑位置和安全因素。",
+				"行李": "行李要精简，带上必需品。",
+				"交通": "要了解目的地交通情况，提前规划。",
+				"景点": "景点要避开人流高峰，合理安排时间。",
+				"美食": "尝试当地美食，但要注意卫生。",
+				"保险": "出行要买好保险，以防意外。",
+
+				// 数码使用
+				"系统": "系统要及时更新，保持流畅。",
+				"软件": "软件要从官方渠道下载，注意安全。",
+				"备份": "重要数据要及时备份，防止丢失。",
+				"病毒": "要安装防病毒软件，定期查杀。",
+				"网络": "网络安全要注意，不要点击不明链接。",
+				"密码": "密码要定期更换，不要太简单。",
+				"隐私": "要注意保护个人隐私信息。",
+				"维修": "电子产品故障要找专业人士维修。",
+
+				// 项目介绍相关
+				"项目介绍": "这是一个AI对话助手项目，我可以和你聊天、解答问题、提供建议。你可以点击右上角的介绍按钮了解更多！",
+				"你是什么项目": "我是一个AI对话助手项目，能够进行智能对话，覆盖300多个生活话题。想了解更多可以点击右上角的介绍按钮！",
+				"怎么用": "使用很简单，直接在输入框输入你想说的话，然后点击发送或按回车键就可以了。我会根据你的内容给出回应。",
+				"有什么功能": "我有很多功能，包括日常聊天、知识问答、情感交流、生活建议等。你可以试着和我聊聊，看看我都会些什么！",
+				"使用说明": "直接在下方输入框输入内容即可与我对话，我会根据你的输入给出相应回复。如果想了解更多，可以点击右上角的介绍按钮。",
+				"帮助": "需要帮助吗？你可以直接问我任何问题，或者点击右上角的介绍按钮查看详细使用说明。",
+				"说明": "我是一个能够进行智能对话的AI助手，你可以和我聊天、咨询问题，我会尽力帮助你。",
+				"指南": "使用很简单，直接输入你想说的话就可以了。我可以陪你聊天、回答问题、给出建议等。",
+				"功能介绍": "我的主要功能包括：日常聊天、知识问答、情感交流、生活建议等。你想了解哪个方面呢？",
+				"版本": "我是一个不断进化的AI助手，目前已经能够覆盖300多个生活话题的对话内容。",
+
+				// 整体项目介绍
+				"介绍": "欢迎了解我们的Web工具箱项目！这是一个集实用工具、娱乐游戏、智能助手于一体的综合性平台。\n\n【项目结构】\n1. 首页：美观的瀑布流布局，展示所有功能模块\n2. 分类导航：清晰的功能分类，方便快速访问\n3. 用户中心：个性化的用户管理界面\n\n【核心功能】\n1. 实用工具：年龄计算器、利息计算器等\n2. 休闲游戏：抽奖、塔罗牌、猜数字等\n3. AI助手：智能对话系统（就是我）\n4. 搜索系统：站内资源快速检索\n5. 用户系统：登录注册、个性化服务\n\n需要了解具体功能，可以继续问我哦！",
+
+				"项目结构": "本项目采用模块化设计，主要分为以下部分：\n\n【前端展示层】\n1. 首页模块：瀑布流布局展示\n2. 导航模块：功能分类导航\n3. 内容模块：具体功能实现\n4. 用户模块：用户界面交互\n\n【功能模块层】\n1. 计算工具模块\n2. 游戏娱乐模块\n3. AI对话模块\n4. 搜索服务模块\n5. 用户管理模块\n\n【数据存储层】\n1. 本地存储：用户设置、使用记录\n2. 云端存储：用户数据、系统数据",
+
+				"功能详情": "让我详细介绍各个功能模块：\n\n【计算工具】\n1. 年龄计算器：精确计算年龄和天数\n2. 利息计算器：存款利息计算\n3. 单位换算器：支持多种单位转换\n\n【游戏娱乐】\n1. 抽奖系统：模拟抽奖体验\n2. 塔罗牌：专业的占卜解牌\n3. 猜数字：趣味数字游戏\n\n【AI助手】\n1. 智能对话：支持多种话题交流\n2. 问题解答：提供专业解答\n3. 情感支持：提供情感交流\n\n【搜索系统】\n1. 快速检索：实时搜索结果\n2. 智能提示：搜索建议\n3. 历史记录：搜索历史管理",
+
+				"技术特点": "项目采用现代化技术栈：\n\n【前端技术】\n1. HTML5：语义化标签\n2. CSS3：现代化样式\n3. JavaScript：交互逻辑\n4. 响应式设计：多端适配\n\n【性能优化】\n1. 代码压缩：提升加载速度\n2. 懒加载：优化资源加载\n3. 本地缓存：提升响应速度\n\n【用户体验】\n1. 界面美观：现代化设计\n2. 操作简单：直观交互\n3. 反馈及时：实时响应",
+
+				"使用方法": "工具箱使用非常简单：\n\n【基本操作】\n1. 打开首页：浏览所有功能\n2. 选择功能：点击需要的模块\n3. 使用功能：按界面提示操作\n4. 查看结果：获取操作结果\n\n【特色功能】\n1. 快速导航：分类快速访问\n2. 智能助手：随时提供帮助\n3. 个性设置：自定义使用体验\n\n【注意事项】\n1. 首次使用建议注册账号\n2. 及时保存重要数据\n3. 遇问题可随时咨询我",
+
+				"更新维护": "项目持续更新优化中：\n\n【近期更新】\n1. 界面优化：视觉体验提升\n2. 功能完善：工具功能增强\n3. 性能优化：运行速度提升\n\n【计划更新】\n1. 新增工具：更多实用功能\n2. 系统优化：提升用户体验\n3. 界面改进：优化交互设计\n\n【问题反馈】\n1. 可通过我反馈问题\n2. 在界面提供反馈入口\n3. 及时处理用户反馈",
+
+				"帮助指南": "遇到问题？我来帮你：\n\n【常见问题】\n1. 功能无法使用？检查网络连接\n2. 数据无法保存？确认是否登录\n3. 界面显示异常？尝试刷新页面\n\n【获取帮助】\n1. 询问AI助手（我）\n2. 查看使用说明\n3. 提交问题反馈\n\n【使用建议】\n1. 建议使用主流浏览器\n2. 保持网络环境稳定\n3. 定期清理浏览器缓存",
+
+				"项目优势": "我们的项目具有以下优势：\n\n【功能优势】\n1. 功能丰富：满足多样需求\n2. 操作简单：易于上手使用\n3. 持续更新：不断完善功能\n\n【技术优势】\n1. 性能优秀：响应速度快\n2. 兼容性好：支持多种设备\n3. 安全可靠：数据有保障\n\n【服务优势】\n1. 智能助手：随时提供帮助\n2. 及时响应：快速解决问题\n3. 用户至上：注重用户体验",
+
+				// 功能详细介绍
+				"年龄计算器详情": "年龄计算器是一个精确计算年龄的工具：\n\n【功能特点】\n1. 精确计算：精确到天数的年龄计算\n2. 多种格式：支持多种日期输入格式\n3. 特殊计算：支持虚岁、周岁计算\n\n【使用方法】\n1. 输入出生日期\n2. 选择计算方式\n3. 获取计算结果\n\n【实用场景】\n1. 精确年龄计算\n2. 入学年龄核算\n3. 保险年龄计算\n\n【注意事项】\n1. 日期格式要正确\n2. 选择合适的计算方式",
+
+				"利息计算器详情": "利息计算器可以帮助计算存款利息：\n\n【功能特点】\n1. 多种计算：活期、定期利息计算\n2. 复利计算：支持复利计算功能\n3. 准确计算：精确到小数点后2位\n\n【使用方法】\n1. 输入本金金额\n2. 选择存款方式\n3. 设置利率和期限\n4. 获取计算结果\n\n【实用场景】\n1. 存款收益计算\n2. 理财规划参考\n3. 贷款利息计算\n\n【注意事项】\n1. 利率要输入准确\n2. 注意计算方式选择",
+
+				"抽奖系统详情": "抽奖系统提供模拟抽奖体验：\n\n【功能特点】\n1. 多种模式：普通抽奖、概率抽奖\n2. 动画效果：流畅的抽奖动画\n3. 记录保存：抽奖历史记录\n\n【使用方法】\n1. 选择抽奖模式\n2. 设置奖品信息\n3. 点击抽奖按钮\n4. 查看抽奖结果\n\n【实用场景】\n1. 活动抽奖\n2. 奖品分配\n3. 随机选择\n\n【注意事项】\n1. 设置合理概率\n2. 保存重要记录",
+
+				"塔罗牌详情": "塔罗牌系统提供专业的占卜体验：\n\n【功能特点】\n1. 完整牌组：78张塔罗牌\n2. 专业解读：详细的牌义解析\n3. 多种占卜：不同的占卜方式\n\n【使用方法】\n1. 选择占卜方式\n2. 抽取塔罗牌\n3. 查看牌义解读\n4. 获取占卜建议\n\n【实用场景】\n1. 生活指引\n2. 心理参考\n3. 娱乐体验\n\n【注意事项】\n1. 理性对待结果\n2. 仅供参考娱乐",
+
+				"搜索功能详情": "站内搜索系统功能强大：\n\n【功能特点】\n1. 实时搜索：即时显示结果\n2. 智能提示：搜索建议功能\n3. 分类展示：结果分类显示\n\n【使用方法】\n1. 输入关键词\n2. 选择搜索范围\n3. 查看搜索结果\n4. 筛选所需内容\n\n【实用场景】\n1. 功能查找\n2. 内容检索\n3. 快速定位\n\n【注意事项】\n1. 使用准确关键词\n2. 注意搜索范围",
+
+				"用户系统详情": "用户管理系统功能完善：\n\n【功能特点】\n1. 账户管理：注册登录功能\n2. 个人中心：信息管理平台\n3. 数据同步：多端数据同步\n\n【使用方法】\n1. 注册账号\n2. 完善信息\n3. 登录使用\n4. 管理个人数据\n\n【实用场景】\n1. 个人信息管理\n2. 使用记录保存\n3. 个性化设置\n\n【注意事项】\n1. 妥善保管密码\n2. 及时同步数据",
+
+				"AI助手详情": "AI对话助手功能强大：\n\n【功能特点】\n1. 智能对话：自然语言交互\n2. 多领域知识：覆盖300+话题\n3. 情感交流：提供情感支持\n\n【使用方法】\n1. 直接输入问题\n2. 等待AI回复\n3. 继续对话交流\n4. 获取帮助建议\n\n【实用场景】\n1. 知识咨询\n2. 情感交流\n3. 生活建议\n\n【注意事项】\n1. 表述要清晰\n2. 保持礼貌对话",
+
+				"单位换算详情": "单位换算器功能全面：\n\n【功能特点】\n1. 多类型：支持多种单位类型\n2. 精确计算：高精度换算结果\n3. 常用单位：快速换算功能\n\n【使用方法】\n1. 选择单位类型\n2. 输入数值\n3. 选择目标单位\n4. 获取换算结果\n\n【实用场景】\n1. 日常换算\n2. 工程计算\n3. 学习辅助\n\n【注意事项】\n1. 选择正确单位\n2. 注意数值范围",
+
+				"猜数字详情": "猜数字游戏趣味十足：\n\n【功能特点】\n1. 多种难度：不同难度级别\n2. 智能提示：方向性提示\n3. 记录统计：游戏数据统计\n\n【使用方法】\n1. 选择难度等级\n2. 输入猜测数字\n3. 查看提示信息\n4. 继续猜测直到正确\n\n【实用场景】\n1. 休闲娱乐\n2. 逻辑训练\n3. 数字游戏\n\n【注意事项】\n1. 注意提示信息\n2. 合理安排时间",
+
+				// 前端开发知识库
+				"html基础": `HTML5核心知识：
+
+【基础概念】
+1. 语义化标签
+- header, nav, main, article, section, footer
+- 提高代码可读性和SEO效果
+
+2. 表单增强
+- 新增input类型：email, number, date等
+- 表单验证属性：required, pattern等
+
+3. 多媒体支持
+- audio和video标签
+- canvas绘图
+- WebGL 3D渲染
+
+【代码示例】
+\`\`\`html
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语义化布局示例</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#home">首页</a></li>
+                <li><a href="#about">关于</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <article>
+            <h1>文章标题</h1>
+            <section>
+                <h2>章节标题</h2>
+                <p>章节内容...</p>
+            </section>
+        </article>
+    </main>
+
+    <footer>
+        <p>页脚信息</p>
+    </footer>
+</body>
+</html>
+\`\`\`
+
+【最佳实践】
+1. 使用语义化标签
+2. 保持结构清晰
+3. 注重可访问性
+4. 移动端适配
+5. 性能优化`,
+
+				"css技巧": `CSS3高级技巧：
+
+【核心概念】
+1. 布局系统
+- Flexbox：一维布局
+- Grid：二维布局
+- 多列布局
+
+2. 动画与过渡
+- transition
+- transform
+- animation
+
+3. 响应式设计
+- 媒体查询
+- 相对单位
+- 视口单位
+
+【代码示例】
+\`\`\`css
+/* 现代化布局 */
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+/* 高级动画 */
+.card {
+    transition: transform 0.3s ease;
+    will-change: transform;
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 现代化效果 */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+\`\`\`
+
+【最佳实践】
+1. 使用CSS变量
+2. 模块化CSS
+3. 性能优化
+4. 浏览器兼容
+5. 响应式设计`,
+
+				"javascript进阶": `JavaScript高级特性：
+
+【核心概念】
+1. 现代ES6+特性
+- 箭头函数
+- 解构赋值
+- Promise异步
+- async/await
+
+2. 函数式编程
+- 纯函数
+- 高阶函数
+- 柯里化
+
+3. 设计模式
+- 观察者模式
+- 单例模式
+- 工厂模式
+
+【代码示例】
+\`\`\`javascript
+// 现代异步处理
+async function fetchData() {
+    try {
+        const response = await fetch('api/data');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('数据获取失败:', error);
+        throw error;
+    }
+}
+
+// 函数式编程
+const compose = (...fns) => x => 
+    fns.reduceRight((v, f) => f(v), x);
+
+const pipe = (...fns) => x => 
+    fns.reduce((v, f) => f(v), x);
+
+// 观察者模式
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+
+    on(event, callback) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(callback);
+    }
+
+    emit(event, data) {
+        if (this.events[event]) {
+            this.events[event].forEach(callback => callback(data));
+        }
+    }
+}
+\`\`\`
+
+【最佳实践】
+1. 使用现代语法
+2. 异步处理
+3. 错误处理
+4. 性能优化
+5. 代码组织`,
+
+				"前端框架": `现代前端框架对比：
+
+【React】
+1. 特点
+- 虚拟DOM
+- 组件化
+- 单向数据流
+- JSX语法
+
+2. 生态系统
+- Redux状态管理
+- React Router路由
+- Next.js服务端渲染
+
+【Vue】
+1. 特点
+- 响应式系统
+- 模板语法
+- 双向绑定
+- 组件化
+
+2. 生态系统
+- Vuex状态管理
+- Vue Router路由
+- Nuxt.js服务端渲染
+
+【Angular】
+1. 特点
+- 完整框架
+- TypeScript
+- 依赖注入
+- 双向绑定
+
+2. 生态系统
+- RxJS响应式编程
+- NgRx状态管理
+- Material组件库
+
+【代码示例】
+\`\`\`jsx
+// React组件示例
+function App() {
+    const [count, setCount] = useState(0);
+
+    return (
+        <div>
+            <h1>计数器: {count}</h1>
+            <button onClick={() => setCount(count + 1)}>
+                增加
+            </button>
+        </div>
+    );
+}
+
+// Vue组件示例
+export default {
+    data() {
+        return {
+            count: 0
+        }
+    },
+    methods: {
+        increment() {
+            this.count++
+        }
+    },
+    template: '<div><h1>计数器: {{count}}</h1><button @click="increment">增加</button></div>'
+}
+\`\`\`
+
+【选择建议】
+1. 小型项目：Vue
+2. 大型应用：React
+3. 企业级应用：Angular`,
+
+				"性能优化": `前端性能优化策略：
+
+【加载优化】
+1. 资源压缩
+- 代码压缩
+- 图片优化
+- Gzip压缩
+
+2. 懒加载
+- 图片懒加载
+- 路由懒加载
+- 组件懒加载
+
+3. 缓存策略
+- 浏览器缓存
+- Service Worker
+- CDN缓存
+
+【代码示例】
+\`\`\`javascript
+// 图片懒加载
+function lazyLoad() {
+    const images = document.querySelectorAll('img[data-src]');
+    const config = {
+        rootMargin: '50px 0px',
+        threshold: 0.01
+    };
+
+    let observer = new IntersectionObserver((entries, self) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                loadImage(entry.target);
+                self.unobserve(entry.target);
+            }
+        });
+    }, config);
+
+    images.forEach(image => {
+        observer.observe(image);
+    });
+}
+
+function loadImage(image) {
+    image.src = image.dataset.src;
+}
+
+// 路由懒加载
+const routes = [
+    {
+        path: '/home',
+        component: () => import('./views/Home.vue')
+    }
+];
+
+// Service Worker缓存
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+    });
+}
+\`\`\`
+
+【最佳实践】
+1. 代码分割
+2. 预加载关键资源
+3. 优化首屏加载
+4. 减少HTTP请求
+5. 使用现代图片格式`
+			};
+
+			// 添加前端开发相关的响应
+			const webDevResponses = {
+				// HTML相关
+				"html": "HTML是网页的基础结构语言。主要标签包括:\n1. 文档结构: <!DOCTYPE>, <html>, <head>, <body>\n2. 文本标签: <h1>~<h6>, <p>, <span>\n3. 链接和图片: <a>, <img>\n4. 列表: <ul>, <ol>, <li>\n5. 表单: <form>, <input>, <button>\n示例代码:\n```html\n<!DOCTYPE html>\n<html>\n<head>\n    <title>页面标题</title>\n</head>\n<body>\n    <h1>标题</h1>\n    <p>段落文本</p>\n</body>\n</html>\n```",
+
+				// CSS相关
+				"css": "CSS用于设置网页样式。主要包括:\n1. 选择器: 类(.class)、ID(#id)、标签\n2. 盒模型: margin, padding, border\n3. 布局: display, position, flex\n4. 样式: color, background, font-size\n示例代码:\n```css\n.container {\n    display: flex;\n    justify-content: center;\n    padding: 20px;\n    background-color: #f0f0f0;\n}\n```",
+
+				// JavaScript相关
+				"javascript": "JavaScript是网页的交互语言。核心概念:\n1. 变量和数据类型\n2. 函数和事件\n3. DOM操作\n4. 异步编程\n示例代码:\n```javascript\nconst button = document.querySelector('#myButton');\nbutton.addEventListener('click', () => {\n    alert('按钮被点击了！');\n});\n```",
+
+				// 响应式设计
+				"响应式": "响应式设计的核心技术:\n1. 媒体查询\n2. 弹性布局\n3. 弹性图片\n示例代码:\n```css\n@media screen and (max-width: 768px) {\n    .container {\n        flex-direction: column;\n        padding: 10px;\n    }\n}\n```",
+
+				// Flex布局
+				"flex": "Flex布局的主要属性:\n1. 容器属性:\n- display: flex\n- justify-content\n- align-items\n2. 项目属性:\n- flex-grow\n- flex-shrink\n- flex-basis\n示例代码:\n```css\n.container {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n}\n```",
+
+				// Grid布局
+				"grid": "Grid布局的主要特性:\n1. 网格容器和网格项\n2. 行和列的定义\n3. 区域划分\n示例代码:\n```css\n.grid-container {\n    display: grid;\n    grid-template-columns: repeat(3, 1fr);\n    gap: 20px;\n}\n```",
+
+				// 动画效果
+				"动画": "CSS动画的实现方式:\n1. transition过渡\n2. transform变换\n3. animation动画\n示例代码:\n```css\n.element {\n    transition: all 0.3s ease;\n}\n.element:hover {\n    transform: scale(1.1);\n}\n```",
+
+				// 前端框架
+				"框架": "主流前端框架介绍:\n1. React: 组件化、虚拟DOM\n2. Vue: 响应式、双向绑定\n3. Angular: 完整解决方案\n选择建议:\n- 小项目：Vue\n- 大型应用：React/Angular\n- 企业应用：Angular",
+
+				// 性能优化
+				"性能优化": "前端性能优化方案:\n1. 资源压缩\n2. 懒加载\n3. 缓存策略\n4. 代码分割\n示例代码:\n```javascript\n// 图片懒加载\nconst img = document.querySelector('img');\nimg.loading = 'lazy';\n```",
+
+				// 调试技巧
+				"调试": "前端调试方法:\n1. Console方法使用\n2. 断点调试\n3. 网络面板\n4. 元素审查\n示例代码:\n```javascript\nconsole.log('变量:', variable);\nconsole.table(arrayData);\nconsole.time('计时器');\n```",
+
+				// 前端安全
+				"安全": "前端安全注意事项:\n1. XSS防御\n2. CSRF防护\n3. 输入验证\n4. HTTPS使用\n示例代码:\n```javascript\n// XSS防御\nconst safeText = escapeHtml(userInput);\n```",
+
+				// 前端测试
+				"测试": "前端测试方法:\n1. 单元测试\n2. 集成测试\n3. E2E测试\n示例代码:\n```javascript\ndescribe('按钮测试', () => {\n    it('点击事件', () => {\n        expect(button.click()).toBeTruthy();\n    });\n});\n```"
+			};
+
+			// 扩展原有的响应处理逻辑
+			function getAIResponse(userInput) {
+				// 检查是否是前端开发相关问题
+				const webDevKeywords = {
+					"html": ["html", "标签", "文档结构"],
+					"css": ["css", "样式", "选择器", "布局"],
+					"javascript": ["javascript", "js", "脚本", "函数"],
+					"响应式": ["响应式", "自适应", "媒体查询"],
+					"flex": ["flex", "弹性布局"],
+					"grid": ["grid", "网格布局"],
+					"动画": ["动画", "过渡", "transform"],
+					"框架": ["框架", "react", "vue", "angular"],
+					"性能优化": ["性能", "优化", "加载"],
+					"调试": ["调试", "debug", "console"],
+					"安全": ["安全", "xss", "csrf"],
+					"测试": ["测试", "单元测试", "集成测试"]
+				};
+
+				// 检查用户输入是否匹配前端开发关键词
+				for (let [topic, keywords] of Object.entries(webDevKeywords)) {
+					if (keywords.some(keyword => userInput.toLowerCase().includes(keyword))) {
+						return webDevResponses[topic];
+					}
+				}
+
+				// 如果不是前端开发问题，使用原有的响应逻辑
+				// ... existing response logic ...
+			}
+
+			// 更新显示消息的函数，支持代码高亮
+			function displayMessage(message, isUser = false) {
+				const messageDiv = document.createElement('div');
+				messageDiv.className = isUser ? 'message user-message' : 'message ai-message';
+				
+				// 检查是否包含代码块
+				if (message.includes('```')) {
+					// 分割代码块和普通文本
+					const parts = message.split('```');
+					parts.forEach((part, index) => {
+						if (index % 2 === 0) {
+							// 普通文本
+							const textSpan = document.createElement('span');
+							textSpan.textContent = part;
+							messageDiv.appendChild(textSpan);
+						} else {
+							// 代码块
+							const codeBlock = document.createElement('pre');
+							const code = document.createElement('code');
+							code.textContent = part;
+							codeBlock.appendChild(code);
+							messageDiv.appendChild(codeBlock);
+						}
+					});
+				} else {
+					messageDiv.textContent = message;
+				}
+				
+				chatMessages.appendChild(messageDiv);
+				chatMessages.scrollTop = chatMessages.scrollHeight;
+			}
+
+			// ... existing code ...
+
+			function addMessage(content, isUser = false) {
+				const messagesDiv = document.getElementById('chatMessages');
+				const messageDiv = document.createElement('div');
+				messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+				
+				messageDiv.innerHTML = `
+					<div class="avatar">${isUser ? '你' : 'AI'}</div>
+					<div class="message-content">${content}</div>
+				`;
+				
+				messagesDiv.appendChild(messageDiv);
+				messagesDiv.scrollTop = messagesDiv.scrollHeight;
+			}
+
+			function showTypingIndicator() {
+				const indicator = document.getElementById('typingIndicator');
+				indicator.style.display = 'block';
+			}
+
+			function hideTypingIndicator() {
+				const indicator = document.getElementById('typingIndicator');
+				indicator.style.display = 'none';
+			}
+
+			function getResponse(input) {
+				const lowercaseInput = input.toLowerCase();
+				
+				// 首先检查是否是前端开发相关问题
+				if (lowercaseInput.includes('html') || lowercaseInput.includes('html5')) {
+					return responses["html基础"];
+				}
+				
+				if (lowercaseInput.includes('css') || lowercaseInput.includes('样式')) {
+					return responses["css技巧"];
+				}
+				
+				if (lowercaseInput.includes('javascript') || lowercaseInput.includes('js')) {
+					return responses["javascript进阶"];
+				}
+				
+				if (lowercaseInput.includes('框架') || lowercaseInput.includes('react') || 
+					lowercaseInput.includes('vue') || lowercaseInput.includes('angular')) {
+					return responses["前端框架"];
+				}
+				
+				if (lowercaseInput.includes('性能') || lowercaseInput.includes('优化') || 
+					lowercaseInput.includes('加载')) {
+					return responses["性能优化"];
+				}
+				
+				// 详细介绍具体功能的匹配
+				if (lowercaseInput.includes('详细介绍') || lowercaseInput.includes('具体介绍')) {
+					if (lowercaseInput.includes('年龄计算') || lowercaseInput.includes('算年龄')) {
+						return responses["年龄计算器详情"];
+					}
+					if (lowercaseInput.includes('利息') || lowercaseInput.includes('存款计算')) {
+						return responses["利息计算器详情"];
+					}
+					if (lowercaseInput.includes('抽奖')) {
+						return responses["抽奖系统详情"];
+					}
+					if (lowercaseInput.includes('塔罗') || lowercaseInput.includes('占卜')) {
+						return responses["塔罗牌详情"];
+					}
+					if (lowercaseInput.includes('搜索')) {
+						return responses["搜索功能详情"];
+					}
+					if (lowercaseInput.includes('用户') || lowercaseInput.includes('账号')) {
+						return responses["用户系统详情"];
+					}
+					if (lowercaseInput.includes('ai') || lowercaseInput.includes('人工智能') || 
+						lowercaseInput.includes('对话') || lowercaseInput.includes('助手')) {
+						return responses["AI助手详情"];
+					}
+					if (lowercaseInput.includes('换算') || lowercaseInput.includes('单位转换')) {
+						return responses["单位换算详情"];
+					}
+					if (lowercaseInput.includes('猜数字') || lowercaseInput.includes('数字游戏')) {
+						return responses["猜数字详情"];
+					}
+				}
+				
+				// 其他口语化匹配保持不变
+				if (lowercaseInput.includes('这是什么') || 
+					lowercaseInput.includes('介绍一下') || 
+					lowercaseInput.includes('给我讲讲') ||
+					lowercaseInput.includes('这个项目') ||
+					lowercaseInput.includes('都有啥') ||
+					lowercaseInput.includes('能干啥')) {
+					return responses["介绍"];
+				}
+				
+				// 功能查询的口语化匹配
+				if (lowercaseInput.includes('计算器在哪') || 
+					lowercaseInput.includes('怎么算年龄') ||
+					lowercaseInput.includes('年龄怎么算')) {
+					return responses["年龄计算器详情"];
+				}
+				
+				if (lowercaseInput.includes('利息怎么算') || 
+					lowercaseInput.includes('存款计算') ||
+					lowercaseInput.includes('算利息')) {
+					return responses["利息计算器详情"];
+				}
+				
+				if (lowercaseInput.includes('怎么抽签') || 
+					lowercaseInput.includes('抽签在哪') ||
+					lowercaseInput.includes('想抽签')) {
+					return responses["抽签系统详情"];
+				}
+				
+				if (lowercaseInput.includes('塔罗牌怎么玩') || 
+					lowercaseInput.includes('想算命') ||
+					lowercaseInput.includes('想占卜')) {
+					return responses["塔罗牌详情"];
+				}
+				
+				if (lowercaseInput.includes('怎么找') || 
+					lowercaseInput.includes('搜索在哪') ||
+					lowercaseInput.includes('查找功能')) {
+					return responses["搜索功能详情"];
+				}
+				
+				if (lowercaseInput.includes('怎么注册') || 
+					lowercaseInput.includes('怎么登录') ||
+					lowercaseInput.includes('账号密码')) {
+					return responses["用户系统详情"];
+				}
+				
+				if (lowercaseInput.includes('你是怎么工作的') || 
+					lowercaseInput.includes('你怎么用') ||
+					lowercaseInput.includes('ai怎么用')) {
+					return responses["AI助手详情"];
+				}
+				
+				if (lowercaseInput.includes('换算') || 
+					lowercaseInput.includes('单位转换') ||
+					lowercaseInput.includes('怎么转换')) {
+					return responses["单位换算详情"];
+				}
+				
+				if (lowercaseInput.includes('猜数字怎么玩') || 
+					lowercaseInput.includes('玩游戏') ||
+					lowercaseInput.includes('数字游戏')) {
+					return responses["猜数字详情"];
+				}
+				
+				// 技术和使用相关的口语化匹配
+				if (lowercaseInput.includes('怎么实现的') || 
+					lowercaseInput.includes('用什么技术') ||
+					lowercaseInput.includes('技术架构')) {
+					return responses["技术特点"];
+				}
+				
+				if (lowercaseInput.includes('怎么用') || 
+					lowercaseInput.includes('使用说明') ||
+					lowercaseInput.includes('操作说明')) {
+					return responses["使用方法"];
+				}
+				
+				if (lowercaseInput.includes('更新了啥') || 
+					lowercaseInput.includes('最近更新') ||
+					lowercaseInput.includes('新功能')) {
+					return responses["更新维护"];
+				}
+				
+				if (lowercaseInput.includes('遇到问题') || 
+					lowercaseInput.includes('出错了') ||
+					lowercaseInput.includes('怎么解决')) {
+					return responses["帮助指南"];
+				}
+				
+				if (lowercaseInput.includes('有什么优势') || 
+					lowercaseInput.includes('为什么用这个') ||
+					lowercaseInput.includes('特色在哪')) {
+					return responses["项目优势"];
+				}
+
+				// 如果没有匹配到特定的口语化表达，再尝试直接关键词匹配
+				for (const key in responses) {
+					if (lowercaseInput.includes(key)) {
+						return responses[key];
+					}
+				}
+				
+				// 默认回复
+				return responses["默认"];
+			}
+
+			function sendMessage() {
+				const input = document.getElementById('userInput');
+				const message = input.value.trim();
+				
+				if (message) {
+					try {
+						// 保存当前状态
+						const currentState = {
+							message: message,
+							timestamp: new Date().getTime()
+						};
+						localStorage.setItem('lastMessageState', JSON.stringify(currentState));
+						
+						addMessage(message, true);
+						input.value = '';
+						
+						showTypingIndicator();
+						
+						setTimeout(() => {
+							try {
+								hideTypingIndicator();
+								const response = getResponse(message);
+								addMessage(response);
+								// 清除已成功处理的状态
+								localStorage.removeItem('lastMessageState');
+							} catch (error) {
+								console.error('Response Error:', error);
+								handleError('响应生成失败，请重试');
+							}
+						}, 1000);
+					} catch (error) {
+						console.error('Message Error:', error);
+						handleError('消息发送失败，请重试');
+					}
+				}
+			}
+
+			function handleKeyPress(event) {
+				if (event.key === 'Enter') {
+					sendMessage();
+				}
+			}
+
+			function showIntro() {
+				document.getElementById('overlay').style.display = 'block';
+				document.getElementById('introContent').style.display = 'block';
+			}
+
+			function hideIntro() {
+				document.getElementById('overlay').style.display = 'none';
+				document.getElementById('introContent').style.display = 'none';
+			}
+
+			function handleError(errorMessage) {
+				hideTypingIndicator();
+				const errorDiv = document.createElement('div');
+				errorDiv.className = 'message error';
+				errorDiv.innerHTML = `
+					<div class="message-content">
+						<span class="error-icon">⚠️</span>
+						${errorMessage}
+						<button onclick="retryLastMessage()" class="retry-btn">重试</button>
+					</div>
+				`;
+				document.getElementById('chatMessages').appendChild(errorDiv);
+			}
+
+			function retryLastMessage() {
+				try {
+					const lastState = localStorage.getItem('lastMessageState');
+					if (lastState) {
+						const { message } = JSON.parse(lastState);
+						document.getElementById('userInput').value = message;
+						// 移除错误消息
+						const errorMessages = document.getElementsByClassName('message error');
+						while (errorMessages.length > 0) {
+							errorMessages[0].remove();
+						}
+						sendMessage();
+					}
+				} catch (error) {
+					console.error('Retry Error:', error);
+					handleError('重试失败，请刷新页面');
+				}
+			}
+
+			// 页面加载时检查是否有未完成的消息
+			window.onload = function() {
+				try {
+					const lastState = localStorage.getItem('lastMessageState');
+					if (lastState) {
+						const { message, timestamp } = JSON.parse(lastState);
+						// 如果消息不超过5分钟，尝试恢复
+						if (new Date().getTime() - timestamp < 300000) {
+							document.getElementById('userInput').value = message;
+							handleError('检测到上次未完成的消息，点击重试继续');
+						} else {
+							localStorage.removeItem('lastMessageState');
+						}
+					}
+				} catch (error) {
+					console.error('Load Error:', error);
+				}
+			};
+
+			// 添加主题切换功能
+			function toggleTheme() {
+				const body = document.body;
+				if (body.classList.contains('dark-theme')) {
+					body.classList.remove('dark-theme');
+					localStorage.setItem('theme', 'light');
+				} else {
+					body.classList.add('dark-theme');
+					localStorage.setItem('theme', 'dark');
+				}
+			}
+
+			// 页面加载时检查主题
+			window.addEventListener('DOMContentLoaded', () => {
+				const savedTheme = localStorage.getItem('theme');
+				if (savedTheme === 'dark') {
+					document.body.classList.add('dark-theme');
+				}
+			});
+		</script>
+	</body>
+</html>

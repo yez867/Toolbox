@@ -366,7 +366,7 @@
             /* 内容区域适配 */
             .content {
                 padding: 15px;
-                height: auto;
+                height: 1460px;
                 min-height: calc(100vh - 60px);
             }
             
@@ -411,8 +411,22 @@
             
             /* 音乐按钮适配 */
             .music-btn {
-                margin: 10px auto;
-                display: block;
+                margin: 113% 0%;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 5px;
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+
+            .music-icon {
+                margin-right: 4px;
+            }
+
+            .music-text {
+                display: inline;
+                white-space: nowrap;
             }
         }
 
@@ -569,6 +583,212 @@
                 display: block;
             }
         }
+
+        /* AI对话框样式 */
+        .ai-chat-container {
+            width: 90%;
+            height: 25vh;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            margin: 4% auto; /* 修改margin，使其与内容保持间距 */
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 100;
+        }
+
+        .ai-chat-container.expanded {
+            height: 50vh;
+        }
+
+        .ai-chat-header {
+            padding: 15px;
+            background: #4a90e2;
+            color: white;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-expand {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0 10px;
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f5f7fa;
+            min-height: 0; /* 确保内容可以正确滚动 */
+        }
+
+        .ai-chat-input {
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-chat-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .ai-chat-input button {
+            padding: 8px 20px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .ai-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+        }
+
+        .ai-message.user {
+            background: #4a90e2;
+            color: white;
+            margin-left: auto;
+            border-radius: 15px 15px 0 15px;
+        }
+
+        .ai-message.bot {
+            background: #e9ecef;
+            color: #333;
+            margin-right: auto;
+            border-radius: 15px 15px 15px 0;
+        }
+
+        /* 移动端适配样式 */
+        @media screen and (max-width: 768px) {
+            /* 内容区域适配 */
+            .content {
+                padding: 10px;
+                margin-top: 0px; /* 为顶部导航留出空间 */
+                min-height: calc(100vh - 60px);
+            }
+
+            /* 表格布局适配 */
+            .table-container {
+                margin: 0 !important;
+                overflow-x: hidden;
+            }
+
+            .table {
+                width: 100%;
+            }
+
+            td {
+                display: block;
+                width: 100%;
+                padding: 10px !important;
+                box-sizing: border-box;
+            }
+
+            /* 导航栏适配 */
+            .nav {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                z-index: 1000;
+            }
+
+            .nav-item {
+                background: rgba(255, 255, 255, 0.9);
+                padding: 10px;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .nav-text {
+                display: none;
+            }
+
+            /* AI对话框移动端样式 */
+            .ai-chat-container {
+                width: 92%;
+                height: auto;
+                min-height: 200px;
+                margin: -58% auto;
+                position: relative;
+                z-index: 100;
+                border-radius: 12px;
+            }
+
+            .ai-chat-container.expanded {
+                height: 60vh;
+            }
+
+            .ai-chat-header {
+                padding: 10px;
+            }
+
+            .ai-chat-messages {
+                padding: 10px;
+                max-height: calc(100% - 100px);
+            }
+
+            .ai-chat-input {
+                padding: 10px;
+            }
+
+            /* 时钟样式调整 */
+            #clock-wrapper {
+                display: none; /* 在移动端隐藏时钟 */
+            }
+
+            /* 音乐按钮调整 */
+            .music-btn {
+                position: absolute;
+                bottom: 80px;
+                right: 20px;
+                z-index: 1000;
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            /* 列表样式调整 */
+            ul, ol {
+                padding-left: 20px;
+                margin: 8px 0;
+            }
+
+            li {
+                margin-bottom: 10px;
+            }
+
+            .hover-text {
+                font-size: 16px;
+            }
+
+            .hover-text:hover {
+                font-size: 18px;
+            }
+        }
     </style>
     <body>
         <!-- 添加加载动画iframe -->
@@ -580,7 +800,7 @@
 	<a href="#myself">🥳我的</a>
     <a href="#home" class="active">⛅首页</a>
     <a href="#sc">💖收藏</a>
-	<a href="#about">📧关于我们</a>
+	<a href="#about">关于我们</a>
     <!-- <button class="music-btn" onclick="togglePlayPause();" style="margin: 8px 15px;">
         <span class="music-icon">🎵</span>音乐
     </button> -->
@@ -592,8 +812,8 @@
 
 
 <div id="home" class="content active">
-	<div class="table-container" style="margin: 0px auto;">
-    <table cellspacing="0"class="table">
+    <div class="table-container" style="margin: 0px auto;">
+        <table cellspacing="0" class="table">
 	<tr style="height: 50%; width: 250px;">
 		<th colspan="10">
 				<iframe src="html/分主页/imgxs.html" style="border: none;" width="100%" height="250"></iframe>
@@ -609,6 +829,10 @@
 					<li class="hover-text">
 						<a href="html/小组件/工具栏/搜索.html">📌搜索列单</a>
 						<button class="fav-btn" onclick="toggleFav(this, '搜索列单', 'html/小组件/工具栏/搜索.html', '📌', 'tool')">☆</button>
+					</li>
+					<li class="hover-text">
+						<a href="html/分主页/ai.html">👾AI助手</a>
+						<button class="fav-btn" onclick="toggleFav(this, 'AI助手', 'html/分主页/ai.html', '🤖', 'tool')">☆</button>
 					</li>
 					<li class="hover-text">
 						<a href="html/小组件/工具栏/年龄计算.html">🧮年龄计算</a>
@@ -690,7 +914,24 @@
 		</button></td>
 	</tr>
 	</table>
-</div>
+    </div>
+
+    <!-- AI对话框移到内容下方 -->
+    <div class="ai-chat-container">
+        <div class="ai-chat-header">
+            <h3>AI助手</h3>
+            <button class="toggle-expand" onclick="toggleExpand()">↑</button>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message bot">
+                你好！我是AI助手，有什么可以帮你的吗？
+            </div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" id="aiChatInput" placeholder="输入你的问题...">
+            <button onclick="sendAiMessage()">发送</button>
+        </div>
+    </div>
 </div>
 
 <div id="sc" class="content">
@@ -1108,6 +1349,101 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 });
             });
-        </script>
+
+    // AI对话框功能
+    function sendAiMessage() {
+        const input = document.getElementById('aiChatInput');
+        const messages = document.getElementById('aiChatMessages');
+        const text = input.value.trim();
+        
+        if (text) {
+            // 自动展开对话框
+            const container = document.querySelector('.ai-chat-container');
+            if (!container.classList.contains('expanded')) {
+                container.classList.add('expanded');
+                document.querySelector('.toggle-expand').textContent = '↓';
+            }
+            
+            // 添加用户消息
+            const userMsg = document.createElement('div');
+            userMsg.className = 'ai-message user';
+            userMsg.textContent = text;
+            messages.appendChild(userMsg);
+            
+            // 清空输入框
+            input.value = '';
+            
+            // 自动滚动到底部
+            messages.scrollTop = messages.scrollHeight;
+            
+            // 模拟AI回复
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'ai-message bot';
+                aiMsg.textContent = getAiResponse(text);
+                messages.appendChild(aiMsg);
+                messages.scrollTop = messages.scrollHeight;
+            }, 500);
+        }
+    }
+
+    // 监听回车键
+    document.getElementById('aiChatInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendAiMessage();
+        }
+    });
+
+    // 获取AI响应
+    function getAiResponse(text) {
+        // 简单的响应逻辑
+        const responses = {
+            '你好': '你好！很高兴见到你。',
+            '再见': '再见！期待下次交谈。',
+            '帮助': '我可以回答你的问题，提供建议和帮助。',
+            'default': '抱歉，我可能没有完全理解你的意思。你能换个方式说明吗？'
+        };
+        
+        const lowercaseText = text.toLowerCase();
+        for (let key in responses) {
+            if (lowercaseText.includes(key)) {
+                return responses[key];
+            }
+        }
+        return responses.default;
+    }
+
+    // 添加展开/折叠功能
+    function toggleExpand() {
+        const container = document.querySelector('.ai-chat-container');
+        const button = document.querySelector('.toggle-expand');
+        container.classList.toggle('expanded');
+        button.textContent = container.classList.contains('expanded') ? '↓' : '↑';
+    }
+
+    function showPage(pageId) {
+        // 隐藏所有页面
+        document.querySelectorAll('.page').forEach(page => {
+            page.style.display = 'none';
+        });
+        
+        // 显示选中的页面
+        document.getElementById(pageId).style.display = 'block';
+        
+        // 移除所有导航项的active类
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // 为当前选中的导航项添加active类
+        document.querySelector(`.nav-item[data-page="${pageId}"]`).classList.add('active');
+
+        // 添加滚动到顶部的功能
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'  // 使用平滑滚动效果
+        });
+    }
+</script>
 </body>
 </html>
