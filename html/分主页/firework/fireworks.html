@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绚丽烟花</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+        }
+        canvas {
+            display: block;
+            background: black;
+        }
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <audio id="explosionSound" src="one.MP3" type="audio/mpeg"></audio>
+    <audio id="backgroundMusic" src="one.MP3" type="audio/mpeg" loop></audio>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置画布尺寸
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        // 烟花粒子类
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                
+                // 使用极坐标系统生成更自然的方向
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 8 + 2;
+                this.velocity = {
+                    x: Math.cos(angle) * speed,
+                    y: Math.sin(angle) * speed
+                };
+                
+                // 添加重力效果
+                this.gravity = 0.1;
+                this.alpha = 1;
+                this.friction = 0.96;
+                
+                // 添加文字粒子特殊属性
+                this.isText = false;
+                this.targetX = x;
+                this.targetY = y;
+                
+                // 随机生命周期
+                this.fadeSpeed = 0.005 + Math.random() * 0.01; // 0.005-0.015的随机衰减速度
+                
+                // 添加分支相关属性
+                this.canBranch = !this.isText && Math.random() < 0.2; // 20%概率产生分支
+                this.hasBranched = false;
+                this.branchTime = 0.3 + Math.random() * 0.3; // 在生命周期30%-60%时分支
+                
+                // 增加小烟花概率
+                this.canSpawnMini = !this.isText && Math.random() < 0.3; // 30%概率产生小烟花
+                this.hasSpawnedMini = false;
+                this.miniSpawnTime = 0.5 + Math.random() * 0.3; // 在生命周期50%-80%时产生
+            }
+
+            draw() {
+                if (this.isMiniHeart) {
+                    // 绘制小爱心
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.angle);
+                    ctx.scale(this.size * 0.1, this.size * 0.1);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    // 绘制爱心形状
+                    for (let i = 0; i < 30; i++) {
+                        const angle = (i / 30) * Math.PI * 2;
+                        const heartX = 16 * Math.pow(Math.sin(angle), 3);
+                        const heartY = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
+                        if (i === 0) {
+                            ctx.moveTo(heartX, heartY);
+                        } else {
+                            ctx.lineTo(heartX, heartY);
+                        }
+                    }
+                    ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+                    ctx.fill();
+                    ctx.restore();
+                } else if (this.isHeart) {
+                    // 绘制主爱心粒子（带波纹效果）
+                    ctx.beginPath();
+                    ctx.arc(
+                        this.x + this.originalX * (this.scale - 1),
+                        this.y + this.originalY * (this.scale - 1),
+                        2 * this.scale,
+                        0,
+                        Math.PI * 2
+                    );
+                    ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+                    ctx.fill();
+                } else {
+                    // 原有的粒子绘制逻辑
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${this.color}, ${this.alpha})`;
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+
+            update() {
+                if (this.isMiniHeart) {
+                    // 小爱心的更新逻辑
+                    this.velocity.y += this.gravity;
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    this.angle += this.rotationSpeed;
+                    this.alpha -= this.fadeSpeed;
+                } else if (this.isHeart) {
+                    // 主爱心粒子的更新逻辑（带波纹效果）
+                    this.velocity.y += this.gravity;
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    this.scale += this.scaleSpeed;
+                    this.alpha = Math.max(0, 1 - (this.scale - 1) * 0.5);
+                } else if (this.isText) {
+                    // 文字粒子的特殊更新逻辑
+                    const dx = this.targetX - this.x;
+                    const dy = this.targetY - this.y;
+                    this.velocity.x += dx * 0.04;
+                    this.velocity.y += dy * 0.4;
+                    this.velocity.x *= this.friction;
+                    this.velocity.y *= this.friction;
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    
+                    // 修复文字粒子的消失
+                    const distanceToTarget = Math.sqrt(dx * dx + dy * dy);
+                    if (distanceToTarget < 1) {
+                        this.alpha -= this.fadeSpeed; // 到达目标位置后开始淡出
+                    } else {
+                        this.alpha = Math.min(1, this.alpha + 0.05);
+                    }
+                } else {
+                    // 原有的更新逻辑
+                    this.velocity.y += this.gravity;
+                    this.velocity.x *= this.friction;
+                    this.velocity.y *= this.friction;
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    this.alpha -= this.fadeSpeed;
+
+                    // 分支逻辑
+                    if (this.canBranch && !this.hasBranched && this.alpha < this.branchTime) {
+                        this.createBranch();
+                        this.hasBranched = true;
+                    }
+
+                    // 小烟花生成逻辑
+                    if (this.canSpawnMini && !this.hasSpawnedMini && this.alpha < this.miniSpawnTime) {
+                        this.createMiniFireworks();
+                        this.hasSpawnedMini = true;
+                    }
+                }
+            }
+
+            createBranch() {
+                const branchCount = 3 + Math.floor(Math.random() * 3); // 3-5个分支
+                const branchParticles = [];
+                
+                for (let i = 0; i < branchCount; i++) {
+                    const particle = new Particle(this.x, this.y, this.color);
+                    
+                    // 设置分支粒子的属性
+                    particle.canBranch = false; // 防止无限分支
+                    particle.alpha = 0.7;
+                    particle.fadeSpeed = 0.02 + Math.random() * 0.01;
+                    particle.gravity = this.gravity * 0.5;
+                    
+                    // 分散的速度
+                    const angle = (i / branchCount) * Math.PI * 2 + Math.random() * 0.5;
+                    const speed = 1 + Math.random() * 2;
+                    particle.velocity.x = Math.cos(angle) * speed;
+                    particle.velocity.y = Math.sin(angle) * speed;
+                    
+                    branchParticles.push(particle);
+                }
+                
+                // 将分支粒子添加到主烟花数组
+                fireworks = fireworks.concat(branchParticles);
+            }
+
+            createMiniFireworks() {
+                const miniCount = 2 + Math.random() * 3; // 2-4个小烟花
+                
+                for (let i = 0; i < miniCount; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 30 + Math.random() * 50;
+                    const miniX = this.x + Math.cos(angle) * distance;
+                    const miniY = this.y + Math.sin(angle) * distance;
+                    
+                    // 创建小型烟花
+                    const miniParticles = createFirework(miniX, miniY, 'mini');
+                    fireworks = fireworks.concat(miniParticles);
+                }
+            }
+        }
+
+        // 创建烟花
+        function createFirework(x, y, type) {
+            const particles = [];
+            const colors = [
+                '255, 0, 0',
+                '0, 255, 0',
+                '0, 0, 255',
+                '255, 255, 0',
+                '255, 0, 255',
+                '0, 255, 255',
+                '255, 255, 255'
+            ];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            // 如果指定了类型就使用指定的类型，否则随机选择
+            const types = ['circle', 'burst', 'heart', 'newyear', 'huge', '2025'];
+            type = type || types[Math.floor(Math.random() * types.length)];
+            
+            switch(type) {
+                case 'circle':
+                    // 标准圆形烟花
+                    for (let i = 0; i < 120; i++) {
+                        const angle = (i / 60) * Math.PI * 2;
+                        const speed = 4 + Math.random() * 2;
+                        const particle = new Particle(x, y, color);
+                        particle.velocity.x = Math.cos(angle) * speed;
+                        particle.velocity.y = Math.sin(angle) * speed;
+                        particles.push(particle);
+                    }
+                    break;
+                    
+                case 'heart':
+                    // 爱心形状
+                    for (let i = 0; i < 150; i++) {
+                        const angle = (i / 75) * Math.PI * 2;
+                        const heartX = 16 * Math.pow(Math.sin(angle), 3);
+                        const heartY = -(13 * Math.cos(angle) - 5 * Math.cos(2 * angle) - 2 * Math.cos(3 * angle) - Math.cos(4 * angle));
+                        const particle = new Particle(x, y, '255, 0, 0'); // 爱心用红色
+                        const speed = 0.2;
+                        particle.velocity.x = heartX * speed;
+                        particle.velocity.y = heartY * speed;
+                        particle.gravity = 0.05; // 减小重力效果
+                        
+                        // 添加波纹效果属性
+                        particle.isHeart = true;
+                        particle.scale = 1;
+                        particle.scaleSpeed = 0.01 + Math.random() * 0.01;
+                        particle.originalX = heartX;
+                        particle.originalY = heartY;
+                        
+                        particles.push(particle);
+                    }
+                    
+                    // 添加装饰性小爱心
+                    for (let i = 0; i < 30; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = 50 + Math.random() * 100;
+                        const miniX = x + Math.cos(angle) * distance;
+                        const miniY = y + Math.sin(angle) * distance;
+                        
+                        const miniHeart = new Particle(miniX, miniY, '255, 192, 203'); // 粉色小爱心
+                        miniHeart.isMiniHeart = true;
+                        miniHeart.size = 2 + Math.random() * 2;
+                        miniHeart.angle = Math.random() * Math.PI * 2;
+                        miniHeart.rotationSpeed = (Math.random() - 0.5) * 0.1;
+                        miniHeart.gravity = 0.05;
+                        miniHeart.fadeSpeed = 0.005 + Math.random() * 0.005;
+                        
+                        // 向外扩散的速度
+                        const speed = 1 + Math.random() * 2;
+                        miniHeart.velocity.x = Math.cos(angle) * speed;
+                        miniHeart.velocity.y = Math.sin(angle) * speed;
+                        
+                        particles.push(miniHeart);
+                    }
+                    break;
+                    
+                case 'newyear':
+                    // 新年快乐文字烟花
+                    const texts = ['新', '年', '快', '乐'];
+                    const textParticles = [];
+                    
+                    // 为每个文字创建粒子
+                    texts.forEach((text, index) => {
+                        const offsetX = (index - 1.5) * 60; // 文字间距
+                        
+                        // 创建文字轮廓点
+                        const points = getTextPoints(text, x + offsetX, y);
+                        
+                        points.forEach(point => {
+                            const particle = new Particle(
+                                x + Math.random() * 100 - 50, // 随机初始位置
+                                y + Math.random() * 100 - 50,
+                                '255, 200, 0' // 金色
+                            );
+                            
+                            // 设置目标位置
+                            particle.isText = true;
+                            particle.targetX = point.x;
+                            particle.targetY = point.y;
+                            particle.gravity = 0;
+                            particle.friction = 0.95;
+                            particle.alpha = 1;
+                            
+                            // 计算到目标点的速度
+                            const dx = (point.x - particle.x) / 50;
+                            const dy = (point.y - particle.y) / 50;
+                            particle.velocity.x = dx;
+                            particle.velocity.y = dy;
+                            
+                            textParticles.push(particle);
+                        });
+                    });
+                    
+                    return textParticles;
+                    
+                case 'burst':
+                    // 爆裂形烟花
+                    for (let i = 0; i < 100; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = 2 + Math.random() * 4;
+                        const particle = new Particle(x, y, color);
+                        particle.velocity.x = Math.cos(angle) * speed;
+                        particle.velocity.y = Math.sin(angle) * speed;
+                        particles.push(particle);
+                    }
+                    break;
+                
+                case 'huge':
+                    // 特大型烟花
+                    const layers = 5; // 多层爆炸
+                    const particlesPerLayer = 100; // 每层的粒子数
+                    
+                    for (let layer = 0; layer < layers; layer++) {
+                        const radius = 3 + layer * 2; // 每层的基础速度
+                        
+                        for (let i = 0; i < particlesPerLayer; i++) {
+                            const angle = (i / particlesPerLayer) * Math.PI * 2;
+                            const variance = Math.random() * 0.8 + 0.2; // 速度变化
+                            const speed = radius * variance;
+                            
+                            const particle = new Particle(x, y, color);
+                            
+                            // 设置特大烟花的特殊属性
+                            particle.fadeSpeed = 0.003 + Math.random() * 0.003; // 更慢的消失速度
+                            particle.gravity = 0.05; // 更小的重力
+                            particle.friction = 0.98; // 更小的阻力
+                            
+                            // 计算速度
+                            particle.velocity.x = Math.cos(angle) * speed;
+                            particle.velocity.y = Math.sin(angle) * speed;
+                            
+                            // 添加随机偏移
+                            const offset = Math.random() * Math.PI * 2;
+                            particle.velocity.x += Math.cos(offset) * 0.5;
+                            particle.velocity.y += Math.sin(offset) * 0.5;
+                            
+                            // 增加分支概率
+                            particle.canBranch = Math.random() < 0.3; // 30%概率产生分支
+                            particle.branchTime = 0.5 + Math.random() * 0.3;
+                            
+                            particles.push(particle);
+                        }
+                    }
+                    
+                    // 添加中心爆炸效果
+                    for (let i = 0; i < 50; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = Math.random() * 2;
+                        const particle = new Particle(x, y, '255, 255, 255'); // 中心白色
+                        particle.fadeSpeed = 0.02;
+                        particle.velocity.x = Math.cos(angle) * speed;
+                        particle.velocity.y = Math.sin(angle) * speed;
+                        particles.push(particle);
+                    }
+                    break;
+                
+                case '2025':
+                    // 2025字样烟花
+                    const text = '2025';
+                    ctx.font = 'bold 60px Arial';
+                    const textWidth = ctx.measureText(text).width;
+                    
+                    // 为每个数字创建粒子
+                    for (let i = 0; i < text.length; i++) {
+                        const char = text[i];
+                        const charX = x - textWidth/2 + i * 50;
+                        
+                        // 获取数字轮廓点
+                        const points = getTextPoints(char, charX, y);
+                        
+                        points.forEach(point => {
+                            const particle = new Particle(
+                                x + Math.random() * 200 - 100,
+                                y + Math.random() * 200 - 100,
+                                '255, 215, 0' // 金色
+                            );
+                            
+                            particle.isText = true;
+                            particle.targetX = point.x;
+                            particle.targetY = point.y;
+                            particle.gravity = 0;
+                            particle.friction = 0.95;
+                            particle.alpha = 1;
+                            
+                            // 添加轨迹效果
+                            particle.hasTrail = true;
+                            particle.trail = [];
+                            particle.maxTrailLength = 5;
+                            
+                            // 计算到目标点的速度
+                            const dx = (point.x - particle.x) / 40;
+                            const dy = (point.y - particle.y) / 40;
+                            particle.velocity.x = dx;
+                            particle.velocity.y = dy;
+                            
+                            particles.push(particle);
+                        });
+                    }
+                    
+                    // 添加装饰性小烟花
+                    setTimeout(() => {
+                        const miniFireworksCount = 8;
+                        for (let i = 0; i < miniFireworksCount; i++) {
+                            const angle = (i / miniFireworksCount) * Math.PI * 2;
+                            const distance = 100;
+                            const miniX = x + Math.cos(angle) * distance;
+                            const miniY = y + Math.sin(angle) * distance;
+                            
+                            fireworks = fireworks.concat(createFirework(miniX, miniY, 'burst'));
+                        }
+                    }, 1000); // 1秒后产生小烟花
+                    
+                    break;
+                
+                case 'mini':
+                    // 小型烟花效果
+                    const miniParticleCount = 20 + Math.floor(Math.random() * 30);
+                    for (let i = 0; i < miniParticleCount; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = 1 + Math.random() * 2;
+                        const particle = new Particle(x, y, color);
+                        
+                        // 设置小烟花特性
+                        particle.gravity = 0.05;
+                        particle.friction = 0.95;
+                        particle.fadeSpeed = 0.02 + Math.random() * 0.01;
+                        particle.canSpawnMini = false; // 防止无限生成
+                        particle.canBranch = false;
+                        
+                        particle.velocity.x = Math.cos(angle) * speed;
+                        particle.velocity.y = Math.sin(angle) * speed;
+                        
+                        particles.push(particle);
+                    }
+                    break;
+            }
+            
+            return particles;
+        }
+
+        // 获取文字轮廓点
+        function getTextPoints(text, baseX, baseY) {
+            const points = [];
+            const fontSize = 40;
+            
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.fillStyle = 'white';
+            
+            // 获取文字宽度用于居中
+            const metrics = ctx.measureText(text);
+            const textWidth = metrics.width;
+            
+            // 创建临时canvas获取文字像素数据
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = textWidth;
+            tempCanvas.height = fontSize * 1.5;
+            
+            tempCtx.font = `bold ${fontSize}px Arial`;
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillText(text, 0, fontSize);
+            
+            const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const pixels = imageData.data;
+            
+            // 增加采样间隔以减少粒子数量
+            for(let y = 0; y < tempCanvas.height; y += 3) {
+                for(let x = 0; x < tempCanvas.width; x += 3) {
+                    const i = (y * tempCanvas.width + x) * 4;
+                    if(pixels[i + 3] > 128) {
+                        points.push({
+                            x: baseX + x - textWidth/2,
+                            y: baseY + y - fontSize/2
+                        });
+                    }
+                }
+            }
+            
+            return points;
+        }
+
+        let fireworks = [];
+        let rockets = [];
+        let lastAutoLaunchTime = Date.now(); // 添加上次发射时间记录
+
+        // 创建音效池（仅用于爆炸音效）
+        const SOUND_POOL_SIZE = 10;
+        const explosionSounds = [];
+        
+        // 初始化音效池
+        for (let i = 0; i < SOUND_POOL_SIZE; i++) {
+            const sound = new Audio('one.MP3');
+            sound.volume = 0.2; // 降低爆炸音效音量
+            explosionSounds.push(sound);
+        }
+
+        // 修改时间控制
+        const DURATION = 90000; // 持续时间改为90秒
+        const START_TIME = Date.now();
+        let rocketFrequency = 3; // 每秒发射3枚
+        
+        // 获取音频元素
+        const explosionSound = document.getElementById('explosionSound');
+        explosionSound.volume = 0.3;  // 设置音效音量
+        
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        backgroundMusic.volume = 0.5;
+        backgroundMusic.loop = false; // 不循环播放
+        // 页面加载完成后开始动画
+        window.addEventListener('load', animate);
+
+        // 播放发射音效
+        function playExplosionSound() {
+            const sound = explosionSound.cloneNode();
+            sound.volume = 0.3;
+            sound.play().catch(e => {
+                console.log('音效播放失败:', e);
+            });
+            // 播放完成后移除音频元素
+            sound.onended = () => {
+                sound.remove();
+            }
+        }
+
+        // 修改动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 计算已经过时间
+            const elapsedTime = Date.now() - START_TIME;
+            const remainingTime = DURATION - elapsedTime;
+            
+            if (remainingTime <= 0) {
+                // 时间到，停止发射新烟花
+                rocketFrequency = 0;
+            } else {
+                // 根据剩余时间逐渐减少发射频率
+                // 在最后15秒开始逐渐减少频率
+                if (remainingTime < 15000) {
+                    rocketFrequency = 3 * (remainingTime / 15000);
+                } else {
+                    rocketFrequency = 3; // 保持每秒3发的频率
+                }
+            }
+
+            // 自动发射控制
+            const currentTime = Date.now();
+            if (currentTime - lastAutoLaunchTime >= 1000 / rocketFrequency) { // 根据频率计算间隔
+                if (rockets.length + fireworks.length < 1000 && rocketFrequency > 0) {
+                    // 同时发射多枚烟花
+                    for (let i = 0; i < Math.ceil(rocketFrequency); i++) {
+                        const rocket = new Rocket();
+                        // 随机选择发射位置，但保持一定间距
+                        rocket.x = (canvas.width / Math.ceil(rocketFrequency)) * i + 
+                                 Math.random() * (canvas.width / Math.ceil(rocketFrequency) * 0.8);
+                        rockets.push(rocket);
+                    }
+                    lastAutoLaunchTime = currentTime;
+                }
+            }
+
+            // 更新和绘制所有火箭
+            rockets = rockets.filter(rocket => {
+                rocket.draw();
+                return rocket.update();
+            });
+
+            // 更新和绘制所有烟花粒子
+            fireworks = fireworks.filter(particle => {
+                particle.update();
+                particle.draw();
+                return particle.alpha > 0;
+            });
+
+            // 如果时间到且没有活跃的烟花，停止动画
+            if (remainingTime <= 0 && rockets.length === 0 && fireworks.length === 0) {
+                cancelAnimationFrame(animate);
+            }
+        }
+
+        // 发射类
+        class Rocket {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height;
+                this.targetY = canvas.height * 0.2 + Math.random() * canvas.height * 0.5;
+                
+                // 减小角度变化范围和摆动幅度
+                this.angle = (Math.random() * 10 - 5) * Math.PI / 180; // 从±15度改为±5度
+                this.speed = 14 + Math.random() * 4; // 稍微调整速度范围
+                this.wobble = Math.random() * 0.05; // 减小摆动幅度
+                this.wobbleSpeed = Math.random() * 0.05; // 减小摆动速度
+                this.time = 0;
+                
+                this.trail = [];
+                this.maxTrailLength = 12; // 稍微减少尾迹长度
+                this.color = '255, 220, 180';
+                
+                // 添加特大烟花标记
+                this.isHuge = Math.random() < 0.2; // 20%概率是特大烟花
+                if (this.isHuge) {
+                    this.color = '255, 255, 255'; // 特大烟花的尾迹是白色
+                    this.maxTrailLength = 20; // 更长的尾迹
+                }
+
+                // 增加2025烟花的概率
+                this.is2025 = Math.random() < 0.3; // 30%概率是2025烟花
+                if (this.is2025) {
+                    this.color = '255, 215, 0'; // 金色尾迹
+                    this.maxTrailLength = 25; // 更长的尾迹
+                }
+            }
+
+            draw() {
+                // 绘制火箭尾迹
+                for (let i = 0; i < this.trail.length; i++) {
+                    const point = this.trail[i];
+                    const size = 2 + (i / this.trail.length) * 2; // 尾迹逐渐变大
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${this.color}, ${i / this.trail.length})`;
+                    ctx.fill();
+                }
+            }
+
+            update() {
+                this.time += 0.1;
+                
+                // 减小摆动效果的影响
+                const wobbleX = Math.sin(this.time * this.wobbleSpeed) * this.wobble * 30; // 减小摆动位移
+                const dx = Math.sin(this.angle) * this.speed + wobbleX;
+                const dy = -Math.cos(this.angle) * this.speed;
+                
+                this.x += dx;
+                this.y += dy;
+
+                // 更新尾迹
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+
+                // 修改爆炸判定
+                if (this.y <= this.targetY || 
+                    this.x < 0 || 
+                    this.x > canvas.width || 
+                    this.y < 0) {
+                    // 播放爆炸音效
+                    playExplosionSound();
+                    
+                    if (this.is2025) {
+                        fireworks = fireworks.concat(createFirework(this.x, this.y, '2025'));
+                    } else if (this.isHuge) {
+                        fireworks = fireworks.concat(createFirework(this.x, this.y, 'huge'));
+                    } else {
+                        fireworks = fireworks.concat(createFirework(this.x, this.y));
+                    }
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        // 修改点击事件
+        canvas.addEventListener('click', (e) => {
+            // 播放发射音效
+            playExplosionSound();
+
+            const rocket = new Rocket();
+            rocket.x = e.clientX;
+            rocket.y = canvas.height;
+            rocket.targetY = e.clientY;
+            rockets.push(rocket);
+        });
+    </script>
+</body>
+</html>
